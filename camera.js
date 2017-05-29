@@ -40,11 +40,10 @@ class Camera {
     this.nextLookAndPos = this.getNextPosition();
     if(this.nextLookAndPos != undefined) {
       this.currentMoveVec = vec3.subtract(vec3.create(), this.nextLookAndPos.position, this.position);
-      //this.currentLookMoveVec = vec3.subtract(vec3.create(), this.nextLookAndPos.lookAt, this.position);
       this.currentLookMoveVec = this.nextLookAndPos.lookAt;
       let angle = vec3.angle(this.lookAt, this.currentLookMoveVec) * 180/Math.PI;
-      console.log(angle);
-      if(angle >= 0.5) {
+      let currentAngle = vec3.angle(vec3.fromValues(0,0,0), this.lookAt) * 180/Math.PI;
+      if(Math.sin(currentAngle - angle) >= 0) {
         this.rotateRight = true;
       } else {
         this.rotateRight = false;
@@ -69,7 +68,9 @@ class Camera {
 
   computeViewMatrix() {
     if(!this.enable) {
-      if(!this.compare(this.lookAt, this.currentLookMoveVec, 0.0001)) {
+      //TODO
+      //Maybe change this with fixed offset to stand still
+      if(!this.compare(this.lookAt, this.currentLookMoveVec, 0.01)) {
         let angle = vec3.angle(this.lookAt, this.currentLookMoveVec);
         if(this.rotateRight) {
           this.rotation.x -= angle;

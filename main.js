@@ -29,9 +29,9 @@ function init(resources) {
 }
 
 function initCamera() {
-  camera = new Camera(false, vec3.fromValues(0,0,0), vec3.fromValues(0,0,0));
-  camera.addNextPosition(vec3.fromValues(0,0,30), vec3.fromValues(10,1,-1));
-  camera.addNextPosition(vec3.fromValues(0,0,10), vec3.fromValues(1,0,-1));
+  camera = new Camera(false, vec3.fromValues(0,0,0), vec3.fromValues(0,0,-1));
+  camera.addNextPosition(vec3.fromValues(0,0,30), vec3.fromValues(0,0,0.5));
+  camera.addNextPosition(vec3.fromValues(0,0,10), vec3.fromValues(0,0,-0.5));
 }
 
 function initCubeMap(resources) {
