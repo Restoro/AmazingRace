@@ -3,6 +3,7 @@ var gl = null;
 
 //Rootnode for scene
 var root = null;
+var camera = null;
 
 var canvasWidth = 1200;
 var canvasHeight = 500;
@@ -21,10 +22,16 @@ function init(resources) {
   //gl.enable(gl.BLEND);
   //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   gl.enable(gl.DEPTH_TEST);
-
   initCubeMap(resources);
+  initCamera();
   root = createSceneGraph(gl, resources);
   initInteraction(gl.canvas);
+}
+
+function initCamera() {
+  camera = new Camera(false, vec3.fromValues(0,0,0), vec3.fromValues(0,0,0));
+  camera.addNextPosition(vec3.fromValues(0,0,30), vec3.fromValues(10,1,-1));
+  camera.addNextPosition(vec3.fromValues(0,0,10), vec3.fromValues(1,0,-1));
 }
 
 function initCubeMap(resources) {
@@ -184,9 +191,8 @@ function initInteraction(canvas) {
     const delta = { x : mouse.pos.x - pos.x, y: mouse.pos.y - pos.y };
     if (mouse.leftButtonDown) {
       //add the relative movement of the mouse to the rotation variables
-      let cam = getCamera();
-  		cam.rotation.x += delta.x * cam.rotateSens;
-  		cam.rotation.y += delta.y * cam.rotateSens;
+  		camera.rotation.x += delta.x * camera.rotateSens;
+  		camera.rotation.y += delta.y * camera.rotateSens;
     }
     mouse.pos = pos;
   });
@@ -215,11 +221,10 @@ function initInteraction(canvas) {
     //https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent
     switch(event.code) {
       case "KeyR":
-        let cam = getCamera();
-        cam.rotation.x = 0;
-    		cam.rotation.y = 0;
-        cam.position.xy = 0;
-        cam.position.z = 0;
+        camera.rotation.x = 90;
+    		camera.rotation.y = 0;
+        camera.position.xy = 0;
+        camera.position.z = 0;
       break;
       case "ArrowUp": case "KeyW":
       //Move forward in look direction
@@ -258,9 +263,9 @@ function render(timeInMilliseconds) {
   //Parameter: out, fieldofview, aspect ratio, near clipping, far clipping
   context.projectionMatrix = mat4.perspective(mat4.create(), glm.deg2rad(25), gl.drawingBufferWidth / gl.drawingBufferHeight, 0.01, 100);
 
-  proccessMovement(keys);
+  camera.proccessMovement(keys);
 
-  context.viewMatrix = computeViewMatrix();
+  context.viewMatrix = camera.computeViewMatrix();
   context.invViewMatrix = mat4.invert(mat4.create(), context.viewMatrix);
 
   root.render(context);
