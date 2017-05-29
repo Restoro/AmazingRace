@@ -22,43 +22,21 @@ function init(resources) {
   //gl.enable(gl.BLEND);
   //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   gl.enable(gl.DEPTH_TEST);
-  initCubeMap(resources);
+  initSkybox(resources,gl);
   initCamera();
   root = createSceneGraph(gl, resources);
   initInteraction(gl.canvas);
 }
 
-function initCamera() {
-  camera = new Camera(false, vec3.fromValues(0,0,0), vec3.fromValues(0,0,-1));
-  camera.addNextPosition(vec3.fromValues(0,0,30), vec3.fromValues(0,0,0.5));
-  camera.addNextPosition(vec3.fromValues(0,0,10), vec3.fromValues(0,0,-0.5));
+function initSkybox(resources, gl) {
+  let skyBox = new CubeMap(resources, gl);
+  envcubetexture = skyBox.envcubetexture;
 }
 
-function initCubeMap(resources) {
-  //create the texture
-  envcubetexture = gl.createTexture();
-  //define some texture unit we want to work on
-  gl.activeTexture(gl.TEXTURE0);
-  //bind the texture to the texture unit
-  gl.bindTexture(gl.TEXTURE_CUBE_MAP, envcubetexture);
-  //set sampling parameters
-  gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
-  gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
-  //gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.MIRRORED_REPEAT); //will be available in WebGL 2
-  gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  //set correct image for each side of the cube map
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);//flipping required for our skybox, otherwise images don't fit together
-  gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, resources.env_pos_x);
-  gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, resources.env_neg_x);
-  gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, resources.env_pos_y);
-  gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, resources.env_neg_y);
-  gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, resources.env_pos_z);
-  gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, resources.env_neg_z);
-  //generate mipmaps (optional)
-  gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
-  //unbind the texture again
-  gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+function initCamera() {
+  camera = new Camera(true, vec3.fromValues(0,0,0), 90, 0);
+  camera.addNextPosition(vec3.fromValues(0,0,30), vec3.fromValues(0,0,0.5));
+  camera.addNextPosition(vec3.fromValues(0,0,10), vec3.fromValues(0,0,-0.5));
 }
 
 function createSceneGraph(gl, resources) {
@@ -73,7 +51,7 @@ function createSceneGraph(gl, resources) {
   // Water Wave
   {
     let water = new MaterialSGNode([
-      new WaterSGNode(makeRectMesh(50,50), true)
+      new WaterSGNode(Objects.makeRectMesh(50,50), true)
     ]);
     water.ambient = [0, 0, 1, 1];
     water.diffuse = [1, 1, 1, 1];
@@ -113,60 +91,17 @@ function createSceneGraph(gl, resources) {
     root.append(rotateLight);
   }
 
+  {
+    let circle = new ShaderSGNode(createProgram(gl, resources.vs, resources.fs), [
+      new MaterialSGNode([
+        new RenderSGNode(Objects.makeTire(1,4,1))
+      ])
+    ]);
+
+    root.append(circle);
+  }
+
   return root;
-}
-
-
-
-function makeRectMesh(width, height) {
-  var vertexPositionData = [];
-  var normalData = [];
-  var indexData = [];
-  var barycentricData = [];
-
-  //We need twice the points
-  width = width * 2;
-  height = height * 2;
-
-  { //Set all Vertex Points TODO Maybe center it?
-    for(var row = 0; row < height; row++) {
-      for(var col = 0; col < width; col++) {
-        //X-Axis
-        vertexPositionData.push(col);
-        //Y-Axis (Flat surface!)
-        vertexPositionData.push(0);
-        //Z-Axis
-        vertexPositionData.push(row);
-
-        //The reflecion is pointed upwards - Y-Axis
-        normalData.push(0);
-        normalData.push(1);
-        normalData.push(0);
-      }
-    }
-  }
-
-  { //Set all Indices
-    for(var row=0; row < height -1; row++) {
-      if(row > 0) {
-        indexData.push(row * height);
-      }
-      for(var col=0; col < width; col++) {
-        indexData.push((row * height) + col);
-        indexData.push(((row+1) * height) + col);
-      }
-
-      if(row < height-2) {
-        indexData.push((row+1)*height + (width-1));
-      }
-    }
-  }
-
-  return {
-    position: vertexPositionData,
-    normal: normalData,
-    index: indexData
-  };
 }
 
 function initInteraction(canvas) {
@@ -282,7 +217,8 @@ loadResources({
   fs: 'shader/empty.fs.glsl',
   wirevs: 'shader/water.vs.glsl',
   wirefs: 'shader/water.fs.glsl',
-
+  texturevs: 'shader/texture.vs.glsl',
+  texturefs: 'shader/texture.fs.glsl',
 /*
   env_pos_x: 'skybox/debug/Red.png',
   env_neg_x: 'skybox/debug/Green.png',

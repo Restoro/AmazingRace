@@ -7,24 +7,26 @@ class PositionLookAt {
 
 class Camera {
 
-  constructor(enableCam, position, lookAt) {
+  constructor(enableCam, position, rotationX, rotationY) {
     this.positionLookQueue = [];
     this.currentMoveVec = vec3.create();
     this.currentLookMoveVec = vec3.create();
-    this.rotateRight = true;
-    //this.nextPos = vec3.create();
+    this.circular = true;
 
     this.rotation = {
-      x: 90,
-      y: 0
+      x: rotationX,
+      y: rotationY
     }
-    console.log(position);
     this.position = position;
-    this.lookAt = lookAt;
+    this.lookAt = vec3.create();
     this.nextLookAndPos = new PositionLookAt(this.position, this.lookAt);
+    //Used for regulating camera freecam speed (rotation and movement)
     this.rotateSens = 0.25;
     this.moveSens = 0.25;
+    //Used for regulating camera path movement speed
     this.movePathSens = 0.0050;
+
+    //This variable is used for switchting between path and freecam
     this.enable = enableCam;
   }
 
@@ -41,17 +43,24 @@ class Camera {
     if(this.nextLookAndPos != undefined) {
       this.currentMoveVec = vec3.subtract(vec3.create(), this.nextLookAndPos.position, this.position);
       this.currentLookMoveVec = this.nextLookAndPos.lookAt;
-      let angle = vec3.angle(this.lookAt, this.currentLookMoveVec) * 180/Math.PI;
-      let currentAngle = vec3.angle(vec3.fromValues(0,0,0), this.lookAt) * 180/Math.PI;
-      if(Math.sin(currentAngle - angle) >= 0) {
-        this.rotateRight = true;
-      } else {
-        this.rotateRight = false;
-      }
+      this.setRotateDirection();
     } else {
+      //No more Position to move to
       this.nextLookAndPos = vec2.fromValues(this.position,this.lookAt);
       this.currentMoveVec = vec3.fromValues(0,0,0);
       this.currentLookMoveVec = this.lookAt;
+      //Enable Freecam
+      this.enable = true;
+    }
+  }
+
+  setRotateDirection() {
+    let targetAngle = vec3.angle(this.lookAt, this.currentLookMoveVec) * 180/Math.PI;
+    let currentAngle = vec3.angle(vec3.fromValues(0,0,0), this.lookAt) * 180/Math.PI;
+    if(Math.sin(currentAngle - targetAngle) >= 0) {
+      this.circular = true;
+    } else {
+      this.circular = false;
     }
   }
 
@@ -59,6 +68,7 @@ class Camera {
     return (a >= b && a <= c);
   }
 
+  //Compares if vec3 position is in offset range of vec3 com
   compare(position, com ,offset) {
     let subCom = vec3.sub(vec3.create(), com, vec3.fromValues(offset,offset,offset));
     let addCom = vec3.add(vec3.create(), com, vec3.fromValues(offset,offset,offset));
@@ -72,12 +82,11 @@ class Camera {
       //Maybe change this with fixed offset to stand still
       if(!this.compare(this.lookAt, this.currentLookMoveVec, 0.01)) {
         let angle = vec3.angle(this.lookAt, this.currentLookMoveVec);
-        if(this.rotateRight) {
+        if(this.circular) {
           this.rotation.x -= angle;
         } else {
           this.rotation.x += angle;
         }
-        //this.rotation.x += angle;
       }
     }
 
@@ -114,6 +123,5 @@ class Camera {
       }
       this.position = vec3.add(vec3.create(), this.position, vec3.scale(vec3.create(), this.currentMoveVec, this.movePathSens));
     }
-    //console.log(this.position);
   }
 }
