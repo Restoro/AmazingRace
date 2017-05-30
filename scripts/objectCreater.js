@@ -50,6 +50,8 @@ class Objects {
   }
 
   //Not the best Implementation...
+  //Use makeSphere and scale it
+  //TODO Delete this method if sure it wont be used!
   static makeTire(radius, segments, z) {
     var vertexPositionData = [];
     var normalData = [];
@@ -57,7 +59,7 @@ class Objects {
 
     let startIndex = 0;
     startIndex = this.pushVertexCircle(vertexPositionData, normalData, indexData, radius, segments, 1, startIndex);
-    console.log(startIndex);
+    //console.log(startIndex);
     let endIndex = this.pushVertexCircle(vertexPositionData, normalData, indexData, radius, segments, 0, startIndex);
 
     for(var seg=1; seg <= segments; seg++) {
@@ -77,8 +79,8 @@ class Objects {
       }
     }
 
-    console.log(vertexPositionData);
-    console.log(indexData);
+    //console.log(vertexPositionData);
+    //console.log(indexData);
     return {
       position: vertexPositionData,
       normal: normalData,
@@ -98,7 +100,7 @@ class Objects {
       vertexPositionData.push(Math.cos(position) * radius);
       vertexPositionData.push(Math.sin(position) * radius);
       vertexPositionData.push(z);
-      console.log("Vertices:"+Math.cos(position) * radius + " " + Math.sin(position) * radius + " " + z);
+      //console.log("Vertices:"+Math.cos(position) * radius + " " + Math.sin(position) * radius + " " + z);
       normalData.push(0);
       normalData.push(0);
       normalData.push(1);
@@ -109,12 +111,12 @@ class Objects {
       if((counter-startIndex) > (360/(360/segments)))
       {
         indexData.push(startIndex+1);
-        console.log("Index:"+startIndex + " " + (counter-1) + " " + (startIndex+1));
+        //console.log("Index:"+startIndex + " " + (counter-1) + " " + (startIndex+1));
       }
       else
       {
         indexData.push(counter);
-        console.log("Index:"+startIndex + " " + (counter-1) + " " + (counter));
+        //console.log("Index:"+startIndex + " " + (counter-1) + " " + (counter));
       }
     }
 

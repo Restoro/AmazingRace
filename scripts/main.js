@@ -35,8 +35,10 @@ function initSkybox(resources, gl) {
 
 function initCamera() {
   camera = new Camera(true, vec3.fromValues(0,0,0), 90, 0);
-  camera.addNextPosition(vec3.fromValues(0,0,30), vec3.fromValues(0,0,0.5));
-  camera.addNextPosition(vec3.fromValues(0,0,10), vec3.fromValues(0,0,-0.5));
+  camera.addNextPosition(vec3.fromValues(0,0,50), vec3.fromValues(1,0,0));
+  camera.addNextPosition(vec3.fromValues(0,0,0), vec3.fromValues(0,0,1));
+  camera.addNextPosition(vec3.fromValues(0,0,50), vec3.fromValues(-1,0,0));
+  camera.addNextPosition(vec3.fromValues(0,0,40), vec3.fromValues(0,0,-1));
 }
 
 function createSceneGraph(gl, resources) {
@@ -92,13 +94,16 @@ function createSceneGraph(gl, resources) {
   }
 
   {
-    let circle = new ShaderSGNode(createProgram(gl, resources.vs, resources.fs), [
+    let tire = new ShaderSGNode(createProgram(gl, resources.vs, resources.fs), [
       new MaterialSGNode([
-        new RenderSGNode(Objects.makeTire(1,4,1))
+        new RenderSGNode(makeSphere(.5,25,25))
       ])
     ]);
 
-    root.append(circle);
+    root.append(new TransformationSGNode(glm.transform({ translate: [0,2,-2], scale: [0.4,1,1]}), [
+      tire
+    ]));
+    //root.append(circle);
   }
 
   return root;
@@ -219,6 +224,7 @@ loadResources({
   wirefs: 'shader/water.fs.glsl',
   texturevs: 'shader/texture.vs.glsl',
   texturefs: 'shader/texture.fs.glsl',
+
 /*
   env_pos_x: 'skybox/debug/Red.png',
   env_neg_x: 'skybox/debug/Green.png',
