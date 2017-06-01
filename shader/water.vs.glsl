@@ -49,7 +49,7 @@ void main() {
   vec3 newPosition = a_position;
 
   if(u_useWave) {
-      vec3 waveVector1 = generateWaveWithNormals(a_position.xz, vec2(1,0), 1.5, 0.1, u_animationTime, 0.01);
+      vec3 waveVector1 = generateWaveWithNormals(a_position.xz, vec2(1,0), 1.5, 0.1, u_animationTime, 0.001);
       vec3 waveVector2 = generateWaveWithNormals(a_position.xz, vec2(1,0.5), 0.5, 0.1, u_animationTime, 0.001);
       vec3 waveVector3 = generateWaveWithNormals(a_position.xz, vec2(1, 1), 0.1, 0.2, u_animationTime, 0.001);
       vec3 waveVector4 = generateWaveWithNormals(a_position.xz, vec2(0.5,1), 0.2, 0.1, u_animationTime, 0.001);

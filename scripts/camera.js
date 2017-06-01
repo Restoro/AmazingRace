@@ -159,10 +159,10 @@ class Camera {
         this.position = vec3.sub(vec3.create(), this.position, vec3.scale(vec3.create(), this.lookAt, this.moveSens));
       }
       if(keys["KeyA"] == true) {
-        this.position = vec3.add(vec3.create(), this.position, vec3.scale(vec3.create(),vec3.normalize(vec3.create(), vec3.cross(vec3.create(), this.position, [0,1,0])), this.moveSens));
+        this.position = vec3.sub(vec3.create(), this.position, vec3.scale(vec3.create(),vec3.normalize(vec3.create(), vec3.cross(vec3.create(), this.lookAt, [0,1,0])), this.moveSens));
       }
       if(keys["KeyD"] == true) {
-        this.position = vec3.sub(vec3.create(), this.position, vec3.scale(vec3.create(),vec3.normalize(vec3.create(), vec3.cross(vec3.create(), this.position, [0,1,0])), this.moveSens));
+        this.position = vec3.add(vec3.create(), this.position, vec3.scale(vec3.create(),vec3.normalize(vec3.create(), vec3.cross(vec3.create(), this.lookAt, [0,1,0])), this.moveSens));
       }
     } else {
       if(this.nextLookAndPos.position == undefined) {

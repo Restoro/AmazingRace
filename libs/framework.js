@@ -990,7 +990,6 @@ class LightSGNode extends TransformationSGNode {
   render(context) {
     this.computeLightPosition(context);
     this.setLight(context);
-
     //since this a transformation node update the matrix according to my position
     this.matrix = glm.translate(this.position[0], this.position[1], this.position[2]);
     //render children
