@@ -14,6 +14,11 @@ var rotateLight;
 
 var envcubetexture;
 const keys = {};
+
+//textures
+var floorTexture;
+var treeTexture;
+
 /**
  * initializes OpenGL context, compile shader, and load buffers
  */
@@ -21,12 +26,13 @@ function init(resources) {
   //create a GL context
   gl = createContext(canvasWidth, canvasHeight);
 
-  //gl.enable(gl.BLEND);
-  //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  initTextures(resources);
+
   gl.enable(gl.DEPTH_TEST);
   initSkybox(resources,gl);
   initCamera();
   root = createSceneGraph(gl, resources);
+
   initInteraction(gl.canvas);
 }
 
@@ -44,6 +50,7 @@ function initCamera() {
 }
 
 function createSceneGraph(gl, resources) {
+
   var light;
   const root = new ShaderSGNode(createProgram(gl, resources.materialvs, resources.materialfs));
   {
@@ -76,6 +83,7 @@ function createSceneGraph(gl, resources) {
 
     root.append(rotateLight);
   }
+  //tire
   {
     let tire = new MaterialSGNode([
         new RenderSGNode(makeSphere(.5,25,25))
@@ -105,15 +113,119 @@ function createSceneGraph(gl, resources) {
     let reflectWater = new EnvironmentSGNode(envcubetexture, 4, true);
     reflectWater.append(water);
 
-    waterShader.append(new TransformationSGNode(glm.transform({ translate: [-10,-3,-10], rotateX: 0, scale: 0.25}), [
+    waterShader.append(new TransformationSGNode(glm.transform({ translate: [-55,-1,25], rotateX: 0, rotateY:40, scale: 0.35}), [
       reflectWater
     ]));
 
     root.append(waterShader);
   }
 
+  //floor
+{
+  let floor = new MaterialSGNode(
+            new TextureSGNode(floorTexture,2,
+              new RenderSGNode(makeFloor())
+            ));
+  floor.ambient = [0, 0, 0, 1];
+  floor.diffuse = [0.1, 0.1, 0.1, 1];
+  floor.specular = [0.5, 0.5, 0.5, 1];
+  floor.shininess = 50.0;
+  root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 3}), [
+    floor
+  ]));
+}
+
+  //initialize tree
+{
+  let tree = new MaterialSGNode(
+            new TextureSGNode(treeTexture,2,
+              new RenderSGNode(makeTree())
+            ));
+  tree.ambient = [0, 0, 0, 1];
+  tree.diffuse = [0.1, 0.1, 0.1, 1];
+  tree.specular = [0.5, 0.5, 0.5, 1];
+  tree.shininess = 50.0;
+
+  root.append(new TransformationSGNode(glm.transform({ translate: [0,0,0], rotateX: 0, scale: 1}), [
+    tree
+  ]));
+}
+
   return root;
 }
+
+function initTextures(resources)
+{
+  //floorTexture
+  {
+    //create texture object
+    floorTexture = gl.createTexture();
+
+    //select a texture unit
+    gl.activeTexture(gl.TEXTURE0);
+
+    //bind texture to active texture unit
+    gl.bindTexture(gl.TEXTURE_2D, floorTexture);
+    //set sampling parameters
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    //TASK 4: change texture sampling behaviour
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    //upload texture data
+    gl.texImage2D(gl.TEXTURE_2D, //texture unit target == texture type
+      0, //level of detail level (default 0)
+      gl.RGBA, //internal format of the data in memory
+      gl.RGBA, //image format (should match internal format)
+      gl.UNSIGNED_BYTE, //image data type
+      resources.floortexture); //actual image data
+      //upload texture data
+    //clean up/unbind texture
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+
+  //treeTexture
+  {
+    //create texture object
+    treeTexture = gl.createTexture();
+
+    //select a texture unit
+    gl.activeTexture(gl.TEXTURE0);
+
+    //bind texture to active texture unit
+    gl.bindTexture(gl.TEXTURE_2D, treeTexture);
+    //set sampling parameters
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    //TASK 4: change texture sampling behaviour
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    //upload texture data
+    gl.texImage2D(gl.TEXTURE_2D, //texture unit target == texture type
+      0, //level of detail level (default 0)
+      gl.RGBA, //internal format of the data in memory
+      gl.RGBA, //image format (should match internal format)
+      gl.UNSIGNED_BYTE, //image data type
+      resources.treetexture); //actual image data
+      //upload texture data
+    //clean up/unbind texture
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+
+}
+
+function makeFloor() {
+  var floor = makeRect(10, 10);
+  floor.texture = [0, 0,   1, 0,   1, 1,   0, 1];
+  return floor;
+}
+
+function makeTree() {
+  var tree = makeRect(1, 1);
+  tree.texture = [0, 0,   1, 0,   1, 1,   0, 1];
+  return tree;
+}
+
 
 function initInteraction(canvas) {
   const mouse = {
@@ -201,7 +313,6 @@ function render(timeInMilliseconds) {
   gl.clearColor(0.9, 0.9, 0.9, 1.0);
   //clear the buffer
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
   const context = createSGContext(gl);
   //Set time in context to anime things
   var deltaTime = timeInMilliseconds - lastFrameTime;
@@ -228,6 +339,7 @@ function render(timeInMilliseconds) {
 
 
 
+
 //load the shader resources using a utility function
 loadResources({
   vs: 'shader/empty.vs.glsl',
@@ -236,7 +348,8 @@ loadResources({
   envfs: 'shader/water.fs.glsl',
   materialvs: 'shader/material.vs.glsl',
   materialfs: 'shader/material.fs.glsl',
-
+  treetexture:'models/tree1.png',
+  floortexture: 'models/floor.jpg',
 /*
   env_pos_x: 'skybox/debug/Red.png',
   env_neg_x: 'skybox/debug/Green.png',

@@ -34,6 +34,9 @@ varying vec3 v_eyeVec;
 varying vec3 v_lightVec;
 varying vec3 v_light2Vec;
 
+uniform bool u_enableObjectTexture;
+varying vec2 v_texCoord;
+uniform sampler2D u_tex;
 
 vec4 calculateSimplePointLight(Light light, Material material, vec3 lightVec, vec3 normalVec, vec3 eyeVec) {
 	lightVec = normalize(lightVec);
@@ -61,6 +64,12 @@ void main() {
 	//TASK 2-3 use material uniform
 	//TASK 3-2 use light uniform
 	//TASK 5-6 use second light source
+  vec4 textureColor = vec4(0,0,0,1);
+  if(u_enableObjectTexture)
+  {
+    gl_FragColor =  texture2D(u_tex,v_texCoord); //replace me for TASK 1 and remove me for TASK 2!!!
+    return; //remove me for TASK 2
+  }
 	gl_FragColor =
 		calculateSimplePointLight(u_light, u_material, v_lightVec, v_normalVec, v_eyeVec)
 		+ calculateSimplePointLight(u_light2, u_material, v_light2Vec, v_normalVec, v_eyeVec);
