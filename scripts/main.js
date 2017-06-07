@@ -7,8 +7,8 @@ var camera = null;
 
 var lastFrameTime = 0;
 
-var canvasWidth = 1200;
-var canvasHeight = 500;
+var canvasWidth = 1000;
+var canvasHeight =1000;
 
 var rotateLight;
 
@@ -76,6 +76,7 @@ function createSceneGraph(gl, resources) {
     light.position = [0, 0, 0];
 
     rotateLight = new AnimationSGNode(mat4.create(), light.position, camera, 30, { rotationY:1});
+
     let translateLight = new TransformationSGNode(glm.translate(0,2,2)); //translating the light is the same as setting the light position
     rotateLight.append(translateLight);
     translateLight.append(light);
@@ -138,7 +139,7 @@ function createSceneGraph(gl, resources) {
   //initialize tree
 {
   let tree = new MaterialSGNode(
-            new TextureSGNode(treeTexture,2,
+           new TextureSGNode(treeTexture,2,
               new RenderSGNode(makeTree())
             ));
   tree.ambient = [0, 0, 0, 1];
@@ -146,7 +147,7 @@ function createSceneGraph(gl, resources) {
   tree.specular = [0.5, 0.5, 0.5, 1];
   tree.shininess = 50.0;
 
-  root.append(new TransformationSGNode(glm.transform({ translate: [0,0,0], rotateX: 0, scale: 1}), [
+  root.append(new TransformationSGNode(glm.transform({ translate: [0,-0.5,-10], rotateY: 0 , scale: 1}), [
     tree
   ]));
 }
@@ -322,7 +323,7 @@ function render(timeInMilliseconds) {
   context.timeInMilliseconds = timeInMilliseconds;
   context.deltaTime = deltaTime;
   //rotateLight.matrix = glm.rotateY(180);
-  //rotateLight.matrix = glm.rotateY(timeInMilliseconds);
+  //rotateLight.matrix = glm.rotateY(timeInMilliseconds*0.05);
   //Parameter: out, fieldofview, aspect ratio, near clipping, far clipping
   context.projectionMatrix = mat4.perspective(mat4.create(), glm.deg2rad(25), gl.drawingBufferWidth / gl.drawingBufferHeight, 0.01, 300);
 
@@ -330,6 +331,7 @@ function render(timeInMilliseconds) {
 
   context.viewMatrix = camera.computeViewMatrix();
   context.invViewMatrix = mat4.invert(mat4.create(), context.viewMatrix);
+
 
   root.render(context);
   //request another call as soon as possible
@@ -342,6 +344,7 @@ function render(timeInMilliseconds) {
 
 //load the shader resources using a utility function
 loadResources({
+
   vs: 'shader/empty.vs.glsl',
   fs: 'shader/empty.fs.glsl',
   envvs: 'shader/water.vs.glsl',
