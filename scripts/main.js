@@ -70,13 +70,13 @@ function createSceneGraph(gl, resources) {
   {
     //initialize light
     light = new LightSGNode(); //use now framework implementation of light node
-    light.ambient = [0.2, 0.2, 0.2, 1];
+    light.ambient = [0.4, 0.4, 0.4, 1];
     light.diffuse = [0.8, 0.8, 0.8, 1];
     light.specular = [1, 1, 1, 1];
     light.position = [0, 0, 0];
 
-    rotateLight = new AnimationSGNode(mat4.create(), light.position, camera, 30, { rotationY:1});
-    let translateLight = new TransformationSGNode(glm.translate(0,2,2)); //translating the light is the same as setting the light position
+    rotateLight = new AnimationSGNode(mat4.create(), light.position, camera, 30, { rotateZSin:0.001, rotateZSinRange:90});
+    let translateLight = new TransformationSGNode(glm.translate(10,5,0)); //translating the light is the same as setting the light position
     rotateLight.append(translateLight);
     translateLight.append(light);
     translateLight.append(createLightSphere()); //add sphere for debugging: since we use 0,0,0 as our light position the sphere is at the same position as the light source
@@ -98,28 +98,29 @@ function createSceneGraph(gl, resources) {
     ]));
   }
   // Water Wave
+  let waterShader = new ShaderSGNode(createProgram(gl, resources.envvs, resources.envfs));
   {
-    let waterShader = new ShaderSGNode(createProgram(gl, resources.envvs, resources.envfs));
-
-    let water = new MaterialSGNode([
-      new WaterSGNode(Objects.makeRectMesh(50,50), true)
-    ]);
-    water.ambient = [0, 0, 1, 1];
-    water.diffuse = [1, 1, 1, 1];
+    let waterNode = new WaterSGNode(Objects.makeRectMesh(50,50), true)
+    let waterAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 150, { waterWave:waterNode});
+    waterAnimation.append(waterNode);
+    let water = new MaterialSGNode();
+    water.ambient = [0.25098, 0.64313, 1, 1];
+    water.diffuse = [0.25098, 0.64313, 1, 1];
     water.specular = [0.5, 0.5, 0.5, 1];
-    water.shininess = 5.0;
+    water.shininess = 500.0;
+    water.append(waterAnimation);
     water.lights.push(light);
 
     let reflectWater = new EnvironmentSGNode(envcubetexture, 4, true);
     reflectWater.append(water);
 
-    waterShader.append(new TransformationSGNode(glm.transform({ translate: [-55,-1,25], rotateX: 0, rotateY:40, scale: 0.35}), [
+    waterShader.append(new TransformationSGNode(glm.transform({ translate: [-25,-0.5,-25], rotateX: 0, rotateY:0, scale: 0.35}), [
       reflectWater
     ]));
 
-    root.append(waterShader);
-  }
 
+  }
+  root.append(waterShader);
   //floor
 {
   let floor = new MaterialSGNode(
@@ -359,23 +360,23 @@ loadResources({
   env_neg_z: 'skybox/debug/Blue.png'
 */
 
-/*
+
   env_pos_x: 'skybox/sky/skyposx1.png',
   env_neg_x: 'skybox/sky/skynegx1.png',
   env_pos_y: 'skybox/sky/skyposy1.png',
   env_neg_y: 'skybox/sky/skynegy1.png',
   env_pos_z: 'skybox/sky/skyposz1.png',
   env_neg_z: 'skybox/sky/skynegz1.png'
-*/
 
 
+/*
   env_pos_x: 'skybox/UnionSquare/posx.jpg',
   env_neg_x: 'skybox/UnionSquare/negx.jpg',
   env_pos_y: 'skybox/UnionSquare/posy.jpg',
   env_neg_y: 'skybox/UnionSquare/negy.jpg',
   env_pos_z: 'skybox/UnionSquare/posz.jpg',
   env_neg_z: 'skybox/UnionSquare/negz.jpg'
-
+*/
 }).then(function (resources /*an object containing our keys with the loaded resources*/) {
   init(resources);
 

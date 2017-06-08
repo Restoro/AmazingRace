@@ -22,7 +22,7 @@ class WaterSGNode extends SGNode {
     gl.uniformMatrix4fv(gl.getUniformLocation(shader, 'u_modelView'), false, modelViewMatrix);
     gl.uniformMatrix3fv(gl.getUniformLocation(shader, 'u_normalMatrix'), false, normalMatrix);
     gl.uniformMatrix4fv(gl.getUniformLocation(shader, 'u_projection'), false, projectionMatrix);
-    gl.uniform1f(gl.getUniformLocation(context.shader, 'u_animationTime'), context.timeInMilliseconds);
+    gl.uniform1f(gl.getUniformLocation(context.shader, 'u_animationTime'), this.timeInMilliseconds);
     gl.uniform1f(gl.getUniformLocation(context.shader, 'u_useWave'), this.useWave);
   }
 

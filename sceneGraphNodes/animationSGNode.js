@@ -15,14 +15,26 @@ class AnimationSGNode extends TransformationSGNode{
   render(context) {
     this.computeCurrentPosition(context);
     let distance = vec3.distance(this._worldPosition, this.camera.position);
+
     //console.log("Distance:" + distance + " World Position:" + this._worldPosition + " Camera Position:" + this.camera.position);
     if(distance < this.range) {
       this.checkIfTimeIsSet();
       this.time += context.deltaTime;
-      this.matrix = glm.transform(this.addTimeToParameter(this.functionParameter));
-      this.latestMatrix = this.matrix;
+      if(this.functionParameter.waterWave) {
+        displayText("Water");
+        this.functionParameter.waterWave.timeInMilliseconds = this.time;
+      } else {
+        displayText("Animation");
+        this.matrix = glm.transform(this.addTimeToParameter(this.functionParameter));
+        this.latestMatrix = this.matrix;
+      }
     } else {
-      this.matrix = this.latestMatrix;
+      if(this.functionParameter.waterWave) {
+        this.checkIfTimeIsSet();
+        this.timeInMilliseconds = this.time;
+      } else {
+        this.matrix = this.latestMatrix;
+      }
     }
     super.render(context);
   }
@@ -46,6 +58,7 @@ class AnimationSGNode extends TransformationSGNode{
     //Transform object would be call by reference!
     var newTransform = {};
     this.checkIfTimeIsSet();
+
     if (transform.translate) {
       newTransform.translate = [transform.translate[0] * this.time, transform.translate[1] * this.time, transform.translate[2] * this.time];
       //console.log(newTransform.translate);
@@ -58,6 +71,16 @@ class AnimationSGNode extends TransformationSGNode{
     }
     if (transform.rotateZ) {
       newTransform.rotateZ = (transform.rotateZ * this.time);
+    }
+    if (transform.rotateXSin && transform.rotateXSinRange) {
+        newTransform.rotateX = Math.sin(transform.rotateXSin * this.time) * transform.rotateXSinRange;
+    }
+    if (transform.rotateYSin && transform.rotateYSinRange) {
+        newTransform.rotateY = Math.sin(transform.rotateYSin * this.time) * transform.rotateYSinRange;
+    }
+    if (transform.rotateZSin && transform.rotateZSinRange) {
+        newTransform.rotateZ = (Math.sin(transform.rotateZSin * this.time) * transform.rotateZSinRange);
+        console.log(newTransform.rotateZ)
     }
     //Scale not working
     /*
