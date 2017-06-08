@@ -4,7 +4,7 @@ class WaterSGNode extends SGNode {
     this.useWave = useWave;
     if (typeof renderer !== 'function') {
       //assume it is a model wrap it
-      this.renderer = modelRenderer(renderer);
+      this.renderer = modelRendererStrip(renderer);
     }
     else {
       this.renderer = renderer;
@@ -37,7 +37,7 @@ class WaterSGNode extends SGNode {
 
 /* Since modifing the framework is prohibited, the render method is copied from the framework
   It is modified, that is renders a TRIANGLE_STRIP and not TRIANGLES! */
-function modelRenderer(model) {
+function modelRendererStrip(model) {
   //number of vertices
   var numItems = model.index ? model.index.length : model.position.length / 3;
   var position = null;

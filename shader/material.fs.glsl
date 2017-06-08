@@ -66,9 +66,6 @@ vec4 calculateSimplePointLight(Light light, Material material, vec3 lightVec, ve
 }
 
 void main() {
-	//TASK 2-3 use material uniform
-	//TASK 3-2 use light uniform
-	//TASK 5-6 use second light source
   vec4 textureColor = vec4(0,0,0,1);
   if(u_enableObjectTexture)
   {
@@ -78,7 +75,7 @@ void main() {
 
 	gl_FragColor =
    // vec4(textureColor.r,textureColor.g,textureColor.b,textureColor.a);
-		calculateSimplePointLight(u_light, u_material, v_lightVec, v_normalVec, v_eyeVec, textureColor)
+		calculateSimplePointLight(u_light, u_material, v_lightVec, v_normalVec, v_eyeVec, textureColor);
 		+ calculateSimplePointLight(u_light2, u_material, v_light2Vec, v_normalVec, v_eyeVec, textureColor);
 
 

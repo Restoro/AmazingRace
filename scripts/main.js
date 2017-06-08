@@ -19,8 +19,8 @@ function init(resources) {
   //create a GL context
   gl = createContext(canvasWidth, canvasHeight);
 
-  //gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-  //gl.enable(gl.BLEND);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
   gl.enable(gl.DEPTH_TEST);
   initTextures(resources);
@@ -63,6 +63,22 @@ function createSceneGraph(gl, resources) {
     return new ShaderSGNode(createProgram(gl, resources.vs, resources.fs), [
       new TextureSGNode(floorTexture,0,new RenderSGNode(makeSphere(.2,10,10)))
     ]);
+  }
+
+    //floor
+  {
+    let floorTexture = createImage2DTexture(resources.floortexture);
+    let floor = new MaterialSGNode(
+              new TextureSGNode(floorTexture,0,
+                new RenderSGNode(makeFloor())
+              ));
+    floor.ambient = [0, 0, 0, 1];
+    floor.diffuse = [0.1, 0.1, 0.1, 1];
+    floor.specular = [0.0, 0.0, 0.0, 1];
+    floor.shininess = 50.0;
+    root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 3}), [
+      floor
+    ]));
   }
 
   {
@@ -110,14 +126,14 @@ function createSceneGraph(gl, resources) {
   //tire
   {
     let tire = new MaterialSGNode([
-        new RenderSGNode(makeSphere(.5,25,25))
+        new RenderSGNode(Objects.makeCube(0.5))
       ]);
     tire.ambient = [1, 0, 0, 1];
     tire.diffuse = [1, 0, 0, 1];
     tire.specular = [0.5, 0.5, 0.5, 1];
     tire.shininess = 5.0;
 
-    root.append(new TransformationSGNode(glm.transform({ translate: [0,2,-2], scale: [0.4,1,1]}), [
+    root.append(new TransformationSGNode(glm.transform({ translate: [0,2,-2]}), [
       tire
     ]));
   }
@@ -128,10 +144,11 @@ function createSceneGraph(gl, resources) {
     let waterAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 150, { waterWave:waterNode});
     waterAnimation.append(waterNode);
     let water = new MaterialSGNode();
-    water.ambient = [0.25098, 0.64313, 1, 1];
-    water.diffuse = [0.25098, 0.64313, 1, 1];
-    water.specular = [0.5, 0.5, 0.5, 1];
-    water.shininess = 500.0;
+    water.ambient = [0.25098, 0.64313, 1, 0.15];
+    water.diffuse = [0.25098, 0.64313, 1, 0.15];
+    water.specular = [1, 1, 1, 0.15];
+    water.emission = [0,0,0,0.15];
+    water.shininess = 50.0;
     water.append(waterAnimation);
     water.lights.push(sunLight);
     water.lights.push(moonLight);
@@ -146,21 +163,6 @@ function createSceneGraph(gl, resources) {
 
   }
   root.append(waterShader);
-  //floor
-{
-  let floorTexture = createImage2DTexture(resources.floortexture);
-  let floor = new MaterialSGNode(
-            new TextureSGNode(floorTexture,0,
-              new RenderSGNode(makeFloor())
-            ));
-  floor.ambient = [0, 0, 0, 1];
-  floor.diffuse = [0.1, 0.1, 0.1, 1];
-  floor.specular = [0.0, 0.0, 0.0, 1];
-  floor.shininess = 50.0;
-  root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 3}), [
-    floor
-  ]));
-}
 
   //initialize tree
 {
@@ -169,9 +171,10 @@ function createSceneGraph(gl, resources) {
             new TextureSGNode(treeTexture,0,
               new RenderSGNode(makeTree())
             ));
-  tree.ambient = [1, 0, 0, 1];
-  tree.diffuse = [0.1, 0.1, 0.1, 1];
-  tree.specular = [0.5, 0.5, 0.5, 1];
+  //tree.ambient = [0, 0, 0, 0.5]; - not used because texture
+  //tree.diffuse = [0.1, 0.1, 0.1, 0.5]; - not used because texture
+  tree.specular = [0.0, 0.0, 0.0, 1];
+  tree.emission = [0,0,0,0];
   tree.shininess = 50.0;
 
   root.append(new TransformationSGNode(glm.transform({ translate: [0,0,0], rotateX: 0, scale: 1}), [
@@ -358,6 +361,7 @@ loadResources({
   floortexture: 'models/floor.jpg',
   suntexture: 'models/sun.jpg',
   moontexture: 'models/moon.jpg',
+
 /*
   env_pos_x: 'skybox/debug/Red.png',
   env_neg_x: 'skybox/debug/Green.png',
@@ -367,23 +371,23 @@ loadResources({
   env_neg_z: 'skybox/debug/Blue.png'
 */
 
-
+/*
   env_pos_x: 'skybox/sky/skyposx1.png',
   env_neg_x: 'skybox/sky/skynegx1.png',
   env_pos_y: 'skybox/sky/skyposy1.png',
   env_neg_y: 'skybox/sky/skynegy1.png',
   env_pos_z: 'skybox/sky/skyposz1.png',
   env_neg_z: 'skybox/sky/skynegz1.png'
+*/
 
 
-/*
   env_pos_x: 'skybox/UnionSquare/posx.jpg',
   env_neg_x: 'skybox/UnionSquare/negx.jpg',
   env_pos_y: 'skybox/UnionSquare/posy.jpg',
   env_neg_y: 'skybox/UnionSquare/negy.jpg',
   env_pos_z: 'skybox/UnionSquare/posz.jpg',
   env_neg_z: 'skybox/UnionSquare/negz.jpg'
-*/
+
 }).then(function (resources /*an object containing our keys with the loaded resources*/) {
   init(resources);
 

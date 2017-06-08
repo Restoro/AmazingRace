@@ -75,14 +75,16 @@ vec4 calculateSimplePointLight(Light light, Material material, vec3 lightVec, ve
 	float spec = pow( max( dot(reflectVec, eyeVec), 0.0) , material.shininess);
 
 
-	vec4 c_amb  = clamp(light.ambient * material.ambient, 0.0, 1.0);
+	vec4 c_amb;
 	vec4 c_diff;
 	if(u_useWave) {
 		//vec4 envReflect = vec4(0,0,0,1);
 		vec4 envReflect = calculateEnvironmentReflection(v_envNormalVec, v_cameraRayVec);
 		vec4 envRefract = calculateEnvironmentRefraction(v_envNormalVec, v_cameraRayVec);
+		c_amb  = clamp(light.ambient * material.ambient * envReflect, 0.0, 1.0);
 		c_diff = clamp(diffuse * light.diffuse * material.diffuse * envReflect, 0.0, 1.0);
 	} else {
+		c_amb  = clamp(light.ambient * material.ambient, 0.0, 1.0);
 		c_diff = clamp(diffuse * light.diffuse * material.diffuse, 0.0, 1.0);
 	}
 	vec4 c_spec = clamp(spec * light.specular * material.specular, 0.0, 1.0);
