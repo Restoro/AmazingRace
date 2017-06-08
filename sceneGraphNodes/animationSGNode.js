@@ -48,7 +48,8 @@ class AnimationSGNode extends TransformationSGNode{
   computeCurrentPosition(context) {
     //transform with the current model matrix to get world coordinate since camera is also in world coordinates
     const original = this.position;
-    const position =  vec4.transformMat4(vec4.create(), vec4.fromValues(original[0], original[1],original[2], 1), context.sceneMatrix);
+    let vec4Position = vec4.fromValues(original[0], original[1],original[2], 1)
+    const position =  vec4.transformMat4(vec4.create(), vec4Position, context.sceneMatrix);
     //since we animate the object, we should also include its new position
     const animatedPosition = vec4.transformMat4(vec4.create(), position, glm.transform(this.addTimeToParameter(this.functionParameter)));
     this._worldPosition = animatedPosition;
@@ -72,15 +73,15 @@ class AnimationSGNode extends TransformationSGNode{
     if (transform.rotateZ) {
       newTransform.rotateZ = (transform.rotateZ * this.time);
     }
-    if (transform.rotateXSin && transform.rotateXSinRange) {
-        newTransform.rotateX = Math.sin(transform.rotateXSin * this.time) * transform.rotateXSinRange;
+    //Array with [sin value, range, sinus offset]
+    if (transform.rotateXSin) {
+      newTransform.rotateX = Math.sin(transform.rotateXSin[0] * this.time) * transform.rotateXSin[1] + transform.rotateXSin[2];
     }
-    if (transform.rotateYSin && transform.rotateYSinRange) {
-        newTransform.rotateY = Math.sin(transform.rotateYSin * this.time) * transform.rotateYSinRange;
+    if (transform.rotateYSin) {
+      newTransform.rotateY = Math.sin(transform.rotateYSin[0] * this.time) * transform.rotateYSin[1] + transform.rotateYSin[2];
     }
-    if (transform.rotateZSin && transform.rotateZSinRange) {
-        newTransform.rotateZ = (Math.sin(transform.rotateZSin * this.time) * transform.rotateZSinRange);
-        console.log(newTransform.rotateZ)
+    if (transform.rotateZSin) {
+      newTransform.rotateZ = Math.sin(transform.rotateZSin[0] * this.time) * transform.rotateZSin[1] + transform.rotateZSin[2];
     }
     //Scale not working
     /*

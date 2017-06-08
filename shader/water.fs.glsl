@@ -20,6 +20,7 @@ struct Light {
 };
 
 uniform Light u_light;
+uniform Light u_light2;
 
 uniform Material u_material;
 
@@ -27,6 +28,7 @@ varying vec3 v_normalVec;
 varying vec3 v_envNormalVec;
 varying vec3 v_eyeVec;
 varying vec3 v_lightVec;
+varying vec3 v_lightVec2;
 varying vec3 v_cameraRayVec;
 
 uniform bool u_useReflection;
@@ -93,13 +95,7 @@ vec4 calculateSimplePointLight(Light light, Material material, vec3 lightVec, ve
 void main() {
 
 	if(u_useWave) {
-		// vec4 colorVec = calculateSimplePointLight(u_light, u_material, v_lightVec, v_normalVec, v_eyeVec) * 0.3 +
-		 //								 calculateEnvironmentReflection(v_envNormalVec, v_cameraRayVec) * 0.7;
-
-		//gl_FragColor = vec4(colorVec.xyz, colorVec.a);
-		//gl_FragColor= vec4(v_normalVec * 0.5 + 0.5, 1);
-		//gl_FragColor = calculateEnvironmentReflection(v_envNormalVec, v_cameraRayVec);
-		gl_FragColor = calculateSimplePointLight(u_light, u_material, v_lightVec, v_normalVec, v_eyeVec);
+		gl_FragColor = calculateSimplePointLight(u_light, u_material, v_lightVec, v_normalVec, v_eyeVec) + calculateSimplePointLight(u_light2, u_material, v_lightVec2, v_normalVec, v_eyeVec);
 	} else {
 	 	gl_FragColor = calculateEnvironmentReflection(v_envNormalVec, v_cameraRayVec);
  	}

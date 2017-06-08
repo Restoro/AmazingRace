@@ -10,14 +10,7 @@ var lastFrameTime = 0;
 var canvasWidth = 1200;
 var canvasHeight = 500;
 
-var rotateLight;
-
-var envcubetexture;
 const keys = {};
-
-//textures
-var floorTexture;
-var treeTexture;
 
 /**
  * initializes OpenGL context, compile shader, and load buffers
@@ -26,9 +19,11 @@ function init(resources) {
   //create a GL context
   gl = createContext(canvasWidth, canvasHeight);
 
-  initTextures(resources);
+  //gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  //gl.enable(gl.BLEND);
 
   gl.enable(gl.DEPTH_TEST);
+  initTextures(resources);
   initSkybox(resources,gl);
   initCamera();
   root = createSceneGraph(gl, resources);
@@ -51,10 +46,13 @@ function initCamera() {
 
 function createSceneGraph(gl, resources) {
 
-  var light;
+  var sunLight;
+  var moonLight;
   const root = new ShaderSGNode(createProgram(gl, resources.materialvs, resources.materialfs));
   {
     //add skybox by putting large sphere around us
+    let skyBox = new CubeMap(resources, gl);
+    let envcubetexture = skyBox.envcubetexture;
     var skybox = new ShaderSGNode(createProgram(gl, resources.envvs, resources.envfs),[
         new EnvironmentSGNode(envcubetexture,4,false,
                     new RenderSGNode(makeSphere(200)))]);
@@ -63,33 +61,59 @@ function createSceneGraph(gl, resources) {
 
   function createLightSphere() {
     return new ShaderSGNode(createProgram(gl, resources.vs, resources.fs), [
-      new RenderSGNode(makeSphere(.2,10,10))
+      new TextureSGNode(floorTexture,0,new RenderSGNode(makeSphere(.2,10,10)))
     ]);
   }
 
   {
     //initialize light
-    light = new LightSGNode(); //use now framework implementation of light node
-    light.ambient = [0.4, 0.4, 0.4, 1];
-    light.diffuse = [0.8, 0.8, 0.8, 1];
-    light.specular = [1, 1, 1, 1];
-    light.position = [0, 0, 0];
+    sunLight = new LightSGNode(); //use now framework implementation of light node
+    sunLight.ambient = [0.4, 0.4, 0.4, 1];
+    sunLight.diffuse = [0.6, 0.6, 0.6, 1];
+    sunLight.specular = [1, 1, 1, 1];
+    sunLight.position = [0, 0, 0];
 
-    rotateLight = new AnimationSGNode(mat4.create(), light.position, camera, 30, { rotateZSin:0.001, rotateZSinRange:90});
-    let translateLight = new TransformationSGNode(glm.translate(10,5,0)); //translating the light is the same as setting the light position
+    let rotateLight = new AnimationSGNode(mat4.create(), sunLight.position, camera, 1000, { rotateZ: 0.001});
+    let translateLight = new TransformationSGNode(glm.transform({translate: [150,5,0]})); //translating the light is the same as setting the light position
     rotateLight.append(translateLight);
-    translateLight.append(light);
-    translateLight.append(createLightSphere()); //add sphere for debugging: since we use 0,0,0 as our light position the sphere is at the same position as the light source
+    translateLight.append(sunLight);
+
+
+    let sunTexture = createImage2DTexture(resources.suntexture);
+    let sun = new TextureSGNode(sunTexture,0,new RenderSGNode(makeSphere(16)));
+    translateLight.append(sun); //add sphere for debugging: since we use 0,0,0 as our light position the sphere is at the same position as the light source
 
     root.append(rotateLight);
+  }
+
+  {
+    moonLight = new LightSGNode(); //use now framework implementation of light node
+    moonLight.ambient = [0.2, 0.2, 0.2, 1];
+    moonLight.diffuse = [0.6, 0.6, 0.6, 1];
+    moonLight.specular = [1, 1, 1, 1];
+    moonLight.position = [0, 0, 0];
+    moonLight.uniform = 'u_light2';
+
+    let animateLight = new AnimationSGNode(mat4.create(), moonLight.position, camera, 1000, { rotateZ: 0.001});
+    let translateLight = new TransformationSGNode(glm.transform({translate: [-150,5,0]}));
+    animateLight.append(translateLight);
+    translateLight.append(moonLight);
+
+    let moonTexture = createImage2DTexture(resources.moontexture);
+    let moon = new TextureSGNode(moonTexture,0,new RenderSGNode(makeSphere(4)));
+    translateLight.append(moon);
+
+    root.append(animateLight);
+
+    //root.append(rotateLight);
   }
   //tire
   {
     let tire = new MaterialSGNode([
         new RenderSGNode(makeSphere(.5,25,25))
       ]);
-    tire.ambient = [0, 0, 1, 1];
-    tire.diffuse = [1, 1, 1, 1];
+    tire.ambient = [1, 0, 0, 1];
+    tire.diffuse = [1, 0, 0, 1];
     tire.specular = [0.5, 0.5, 0.5, 1];
     tire.shininess = 5.0;
 
@@ -109,7 +133,8 @@ function createSceneGraph(gl, resources) {
     water.specular = [0.5, 0.5, 0.5, 1];
     water.shininess = 500.0;
     water.append(waterAnimation);
-    water.lights.push(light);
+    water.lights.push(sunLight);
+    water.lights.push(moonLight);
 
     let reflectWater = new EnvironmentSGNode(envcubetexture, 4, true);
     reflectWater.append(water);
@@ -123,13 +148,14 @@ function createSceneGraph(gl, resources) {
   root.append(waterShader);
   //floor
 {
+  let floorTexture = createImage2DTexture(resources.floortexture);
   let floor = new MaterialSGNode(
-            new TextureSGNode(floorTexture,2,
+            new TextureSGNode(floorTexture,0,
               new RenderSGNode(makeFloor())
             ));
   floor.ambient = [0, 0, 0, 1];
   floor.diffuse = [0.1, 0.1, 0.1, 1];
-  floor.specular = [0.5, 0.5, 0.5, 1];
+  floor.specular = [0.0, 0.0, 0.0, 1];
   floor.shininess = 50.0;
   root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 3}), [
     floor
@@ -138,11 +164,12 @@ function createSceneGraph(gl, resources) {
 
   //initialize tree
 {
+  let treeTexture = createImage2DTexture(resources.treetexture);
   let tree = new MaterialSGNode(
-            new TextureSGNode(treeTexture,2,
+            new TextureSGNode(treeTexture,0,
               new RenderSGNode(makeTree())
             ));
-  tree.ambient = [0, 0, 0, 1];
+  tree.ambient = [1, 0, 0, 1];
   tree.diffuse = [0.1, 0.1, 0.1, 1];
   tree.specular = [0.5, 0.5, 0.5, 1];
   tree.shininess = 50.0;
@@ -159,71 +186,47 @@ function initTextures(resources)
 {
   //floorTexture
   {
-    //create texture object
-    floorTexture = gl.createTexture();
-
-    //select a texture unit
-    gl.activeTexture(gl.TEXTURE0);
-
-    //bind texture to active texture unit
-    gl.bindTexture(gl.TEXTURE_2D, floorTexture);
-    //set sampling parameters
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    //TASK 4: change texture sampling behaviour
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    //upload texture data
-    gl.texImage2D(gl.TEXTURE_2D, //texture unit target == texture type
-      0, //level of detail level (default 0)
-      gl.RGBA, //internal format of the data in memory
-      gl.RGBA, //image format (should match internal format)
-      gl.UNSIGNED_BYTE, //image data type
-      resources.floortexture); //actual image data
-      //upload texture data
-    //clean up/unbind texture
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    floorTexture = createImage2DTexture(resources.floortexture);
   }
 
   //treeTexture
   {
-    //create texture object
-    treeTexture = gl.createTexture();
-
-    //select a texture unit
-    gl.activeTexture(gl.TEXTURE0);
-
-    //bind texture to active texture unit
-    gl.bindTexture(gl.TEXTURE_2D, treeTexture);
-    //set sampling parameters
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    //TASK 4: change texture sampling behaviour
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    //upload texture data
-    gl.texImage2D(gl.TEXTURE_2D, //texture unit target == texture type
-      0, //level of detail level (default 0)
-      gl.RGBA, //internal format of the data in memory
-      gl.RGBA, //image format (should match internal format)
-      gl.UNSIGNED_BYTE, //image data type
-      resources.treetexture); //actual image data
-      //upload texture data
-    //clean up/unbind texture
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    treeTexture = createImage2DTexture(resources.treetexture);
   }
 
 }
 
+function createImage2DTexture(image) {
+  var textureNode = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0);
+  //bind texture to active texture unit
+  gl.bindTexture(gl.TEXTURE_2D, textureNode);
+  //set sampling parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  //texture sampling behaviour
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  //upload texture data
+  gl.texImage2D(gl.TEXTURE_2D, //texture unit target == texture type
+    0, //level of detail level (default 0)
+    gl.RGBA, //internal format of the data in memory
+    gl.RGBA, //image format (should match internal format)
+    gl.UNSIGNED_BYTE, //image data type
+    image); //actual image data
+    //upload texture data
+  //clean up/unbind texture
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  return textureNode;
+}
+
 function makeFloor() {
   var floor = makeRect(25, 25);
-  floor.texture = [0, 0,   1, 0,   1, 1,   0, 1];
   return floor;
 }
 
 function makeTree() {
   var tree = makeRect(1, 1);
-  tree.texture = [0, 0,   1, 0,   1, 1,   0, 1];
   return tree;
 }
 
@@ -261,6 +264,7 @@ function initInteraction(canvas) {
   });
   //register globally
   document.addEventListener('keyup', function(event) {
+        //  console.log(event.code);
     switch(event.code) {
       case "ArrowUp": case "KeyW":
         keys["KeyW"] = false;
@@ -276,7 +280,7 @@ function initInteraction(canvas) {
       break;
     }
   });
-  document.addEventListener('keypress', function(event) {
+  document.addEventListener('keydown', function(event) {
     //https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent
     switch(event.code) {
       case "KeyR":
@@ -285,11 +289,15 @@ function initInteraction(canvas) {
         camera.position.xy = 0;
         camera.position.z = 0;
       break;
-      case "ArrowUp": case "KeyW":
+      case "ArrowUp":
+      case "KeyW":
       //Move forward in look direction
       keys["KeyW"] = true;
       break;
-      case "ArrowDown": case "KeyS":
+      case "ArrowDown":
+      console.log(event.code)
+      case "KeyS":
+
       //Move backward in look directiom
       keys["KeyS"] = true;
       break;
@@ -318,12 +326,9 @@ function render(timeInMilliseconds) {
   //Set time in context to anime things
   var deltaTime = timeInMilliseconds - lastFrameTime;
   lastFrameTime = timeInMilliseconds;
-  //rotateLight.matrix = glm.rotateY(-timeInMilliseconds*0.05);
 
   context.timeInMilliseconds = timeInMilliseconds;
   context.deltaTime = deltaTime;
-  //rotateLight.matrix = glm.rotateY(180);
-  //rotateLight.matrix = glm.rotateY(timeInMilliseconds);
   //Parameter: out, fieldofview, aspect ratio, near clipping, far clipping
   context.projectionMatrix = mat4.perspective(mat4.create(), glm.deg2rad(25), gl.drawingBufferWidth / gl.drawingBufferHeight, 0.01, 300);
 
@@ -351,6 +356,8 @@ loadResources({
   materialfs: 'shader/material.fs.glsl',
   treetexture:'models/tree1.png',
   floortexture: 'models/floor.jpg',
+  suntexture: 'models/sun.jpg',
+  moontexture: 'models/moon.jpg',
 /*
   env_pos_x: 'skybox/debug/Red.png',
   env_neg_x: 'skybox/debug/Green.png',
