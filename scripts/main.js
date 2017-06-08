@@ -215,7 +215,7 @@ function initTextures(resources)
 }
 
 function makeFloor() {
-  var floor = makeRect(10, 10);
+  var floor = makeRect(25, 25);
   floor.texture = [0, 0,   1, 0,   1, 1,   0, 1];
   return floor;
 }
