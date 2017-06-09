@@ -21,10 +21,8 @@ class AnimationSGNode extends TransformationSGNode{
       this.checkIfTimeIsSet();
       this.time += context.deltaTime;
       if(this.functionParameter.waterWave) {
-        displayText("Water");
         this.functionParameter.waterWave.timeInMilliseconds = this.time;
       } else {
-        displayText("Animation");
         this.matrix = glm.transform(this.addTimeToParameter(this.functionParameter));
         this.latestMatrix = this.matrix;
       }
@@ -46,13 +44,12 @@ class AnimationSGNode extends TransformationSGNode{
   }
 
   computeCurrentPosition(context) {
+
     //transform with the current model matrix to get world coordinate since camera is also in world coordinates
     const original = this.position;
     let vec4Position = vec4.fromValues(original[0], original[1],original[2], 1)
     const position =  vec4.transformMat4(vec4.create(), vec4Position, context.sceneMatrix);
-    //since we animate the object, we should also include its new position
-    const animatedPosition = vec4.transformMat4(vec4.create(), position, glm.transform(this.addTimeToParameter(this.functionParameter)));
-    this._worldPosition = animatedPosition;
+    this._worldPosition = position;
   }
 
   addTimeToParameter(transform) {

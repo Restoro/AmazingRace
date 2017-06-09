@@ -3,10 +3,12 @@ class WaterSGNode extends SGNode {
     super(children);
     this.useWave = useWave;
     if (typeof renderer !== 'function') {
+      console.log("No Renderer");
       //assume it is a model wrap it
       this.renderer = modelRendererStrip(renderer);
     }
     else {
+      console.log("Renderer");
       this.renderer = renderer;
     }
   }
@@ -100,7 +102,7 @@ function modelRendererStrip(model) {
       gl.drawElements(gl.TRIANGLE_STRIP, numItems, gl.UNSIGNED_SHORT, 0);
     }
     else {
-      gl.drawArrays(gl.TRIANGLES, 0, numItems);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, numItems);
     }
   };
 }

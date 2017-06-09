@@ -20,10 +20,10 @@ function init(resources) {
   gl = createContext(canvasWidth, canvasHeight);
 
   gl.enable(gl.BLEND);
-  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  //gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
   gl.enable(gl.DEPTH_TEST);
-  initTextures(resources);
   initSkybox(resources,gl);
   initCamera();
   root = createSceneGraph(gl, resources);
@@ -84,14 +84,14 @@ function createSceneGraph(gl, resources) {
   {
     //initialize light
     sunLight = new LightSGNode(); //use now framework implementation of light node
-    sunLight.ambient = [0.4, 0.4, 0.4, 1];
+    sunLight.ambient = [0.8, 0.8, 0.8, 1];
     sunLight.diffuse = [0.6, 0.6, 0.6, 1];
     sunLight.specular = [1, 1, 1, 1];
     sunLight.position = [0, 0, 0];
 
-    let rotateLight = new AnimationSGNode(mat4.create(), sunLight.position, camera, 1000, { rotateZ: 0.001});
+    let animateLight = new AnimationSGNode(mat4.create(), sunLight.position, camera, 1000, { rotateZ: 0.001});
     let translateLight = new TransformationSGNode(glm.transform({translate: [150,5,0]})); //translating the light is the same as setting the light position
-    rotateLight.append(translateLight);
+    animateLight.append(translateLight);
     translateLight.append(sunLight);
 
 
@@ -99,7 +99,7 @@ function createSceneGraph(gl, resources) {
     let sun = new TextureSGNode(sunTexture,0,new RenderSGNode(makeSphere(16)));
     translateLight.append(sun); //add sphere for debugging: since we use 0,0,0 as our light position the sphere is at the same position as the light source
 
-    root.append(rotateLight);
+    root.append(animateLight);
   }
 
   {
@@ -121,34 +121,46 @@ function createSceneGraph(gl, resources) {
 
     root.append(animateLight);
 
-    //root.append(rotateLight);
   }
-  //tire
+  //car
   {
-    let tire = new MaterialSGNode([
-        new RenderSGNode(Objects.makeCube(0.5))
+    let carNode = new TransformationSGNode(glm.transform({ translate: [0,2,4]}));
+    let carBodyFront = new MaterialSGNode([
+        new RenderSGNode(Objects.makeCarBody(2,3,7.5))
       ]);
-    tire.ambient = [1, 0, 0, 1];
-    tire.diffuse = [1, 0, 0, 1];
-    tire.specular = [0.5, 0.5, 0.5, 1];
-    tire.shininess = 5.0;
+    carBodyFront.ambient = [1, 0, 0, 1];
+    carBodyFront.diffuse = [1, 0, 0, 1];
+    carBodyFront.specular = [0.5, 0.5, 0.5, 1];
+    carBodyFront.shininess = 500.0;
 
-    root.append(new TransformationSGNode(glm.transform({ translate: [0,2,-2]}), [
-      tire
-    ]));
+    let carBodyBack = new TransformationSGNode(glm.transform({translate:[0,0,6.875], rotateY:180}),new MaterialSGNode([
+        new RenderSGNode(Objects.makeCarBody(2,3,7.5))
+      ]));
+    carBodyFront.ambient = [1, 0, 0, 1];
+    carBodyFront.diffuse = [1, 0, 0, 1];
+    carBodyFront.specular = [0.5, 0.5, 0.5, 1];
+    carBodyFront.shininess = 500.0;
+
+    //TODO Change Container method
+    let carBodyMiddle = new TransformationSGNode(glm.transform({translate:[0,0,3.437], rotateZ:180}),new MaterialSGNode([
+        new RenderSGNode(Objects.makeContainer(2,1.25,3))
+      ]));
+
+    carNode.append(carBodyFront);
+    carNode.append(carBodyBack);
+    carNode.append(carBodyMiddle);
+    root.append(carNode);
   }
-  // Water Wave
-  let waterShader = new ShaderSGNode(createProgram(gl, resources.envvs, resources.envfs));
+
+  //pool
   {
-    let waterNode = new WaterSGNode(Objects.makeRectMesh(50,50), true)
+    //water in pool
+    let waterShader = new ShaderSGNode(createProgram(gl, resources.envvs, resources.envfs));
+    let waterNode = new WaterSGNode(modelRendererStrip(Objects.makeRectMesh(50,50)), true);
     let waterAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 150, { waterWave:waterNode});
     waterAnimation.append(waterNode);
     let water = new MaterialSGNode();
-    water.ambient = [0.25098, 0.64313, 1, 0.15];
-    water.diffuse = [0.25098, 0.64313, 1, 0.15];
-    water.specular = [1, 1, 1, 0.15];
-    water.emission = [0,0,0,0.15];
-    water.shininess = 50.0;
+    setMaterialParameter(water, [0.25098, 0.54313, 1, 0.165], [0.25098, 0.54313, 0.5, 0.165], [0.8, 0.8, 0.8, 0.165], [0,0,0,0.165], 50.0);
     water.append(waterAnimation);
     water.lights.push(sunLight);
     water.lights.push(moonLight);
@@ -156,47 +168,92 @@ function createSceneGraph(gl, resources) {
     let reflectWater = new EnvironmentSGNode(envcubetexture, 4, true);
     reflectWater.append(water);
 
-    waterShader.append(new TransformationSGNode(glm.transform({ translate: [-25,-0.5,-25], rotateX: 0, rotateY:0, scale: 0.35}), [
+    waterShader.append(new TransformationSGNode(glm.transform({ translate: [-10,-0.7,-10], rotateX: 0, rotateY:0, scale: 0.20}), [
       reflectWater
     ]));
 
+    let poolEdgeTexture = createImage2DTexture(resources.woodtexture);
+    let poolEdgeObject = new MaterialSGNode(new TextureSGNode(poolEdgeTexture,0,new RenderSGNode(Objects.makePoolEdge(10,10))));
+    let poolLadder = new MaterialSGNode(new TransformationSGNode(glm.transform({ translate: [-9.45,-1.85,5], scale:1, rotateY:180}), [new RenderSGNode(resources.poolladdermodel)]));
+    setMaterialParameter(poolLadder, [0.5,0.5,0.5,1], [0.5,0.5,0.5,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 0.4);
+    //pool object
+    let poolTexture = createImage2DTexture(resources.pooltexture);
+    let poolObject = new MaterialSGNode(new TextureSGNode(poolTexture,0,new RenderSGNode(Objects.makePool(10,10,4))));
+    poolObject.append(poolLadder);
+    poolObject.append(waterShader);
+    poolObject.append(poolEdgeObject);
+
+    let completePool = new TransformationSGNode(glm.transform({ translate: [-25,10,25], scale:1.0}), [poolObject]);
+    root.append(completePool);
 
   }
-  root.append(waterShader);
 
-  //initialize tree
-{
-  let treeTexture = createImage2DTexture(resources.treetexture);
-  let tree = new MaterialSGNode(
-            new TextureSGNode(treeTexture,0,
-              new RenderSGNode(makeTree())
-            ));
-  //tree.ambient = [0, 0, 0, 0.5]; - not used because texture
-  //tree.diffuse = [0.1, 0.1, 0.1, 0.5]; - not used because texture
-  tree.specular = [0.0, 0.0, 0.0, 1];
-  tree.emission = [0,0,0,0];
-  tree.shininess = 50.0;
+  {
+    let snowManNode = new TransformationSGNode(glm.transform({ translate: [1,0,0], scale:1.0}));
+    let snowManNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, {rotateY:0.1}, [snowManNode]);
 
-  root.append(new TransformationSGNode(glm.transform({ translate: [0,0,0], rotateX: 0, scale: 1}), [
-    tree
-  ]));
-}
+    let snowManLowMaterial  = new MaterialSGNode([new RenderSGNode(makeSphere(0.5))]);
+    setMaterialParameter(snowManLowMaterial, [0.9,0.9,1,1],[0.9,0.9,1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
+    let snowManLow = new TransformationSGNode(glm.transform({ translate: [0,0,0], scale:1.0}), [snowManLowMaterial]);
+
+    let snowManMiddleMaterial  = new MaterialSGNode([new RenderSGNode(makeSphere(0.4))]);
+    setMaterialParameter(snowManMiddleMaterial, [0.9,0.9,1,1],[0.9,0.9,1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
+    let snowManMiddle = new TransformationSGNode(glm.transform({ translate: [0,0.7,0], scale:1.0}), [snowManMiddleMaterial]);
+
+    let snowManHighMaterial = new MaterialSGNode([new RenderSGNode(makeSphere(0.3))]);
+    setMaterialParameter(snowManHighMaterial, [0.9,0.9,1,1],[0.9,0.9,1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
+    let snowManHigh = new TransformationSGNode(glm.transform({ translate: [0,1.25,0], scale:1.0}), [snowManHighMaterial]);
+
+    let snowManArmLeftMaterial = new MaterialSGNode([new RenderSGNode(Objects.makeCube(0.3))]);
+    setMaterialParameter(snowManArmLeftMaterial, [0.45,0.27,0.07,1],[0.45,0.27,0.07,1],[0.0, 0.0, 0.0, 1], [0,0,0,1], 1);
+    let snowManArmLeft = new TransformationSGNode(glm.transform({ translate: [-0.65,0,0], scale:[1,0.2,0.2]}), [snowManArmLeftMaterial]);
+    let snowManArmLeftAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,20,0]}, snowManArmLeft);
+
+    let snowManArmRightMaterial = new MaterialSGNode([new RenderSGNode(Objects.makeCube(0.3))]);
+    setMaterialParameter(snowManArmRightMaterial, [0.45,0.27,0.07,1],[0.45,0.27,0.07,1],[0.0, 0.0, 0.0, 1], [0,0,0,1], 1);
+    let snowManArmRight = new TransformationSGNode(glm.transform({ translate: [0.65,0,0], scale:[1,0.2,0.2]}), [snowManArmRightMaterial]);
+    let snowManArmRightAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,20,0]}, snowManArmRight);
+
+    let snowManArms = new TransformationSGNode(glm.transform({ translate: [0,0.7,0]}), [snowManArmLeftAnimate, snowManArmRightAnimate]);
+
+    snowManNode.append(snowManLow);
+    snowManNode.append(snowManMiddle);
+    snowManNode.append(snowManHigh);
+    snowManNode.append(snowManArms);
+
+    root.append(new TransformationSGNode(glm.transform({ translate: [-25,-1,-25]}), [
+      snowManNodeAnimate
+    ]));
+  }
+
+  {
+    let treeTexture = createImage2DTexture(resources.palmtexture);
+    let tree = new MaterialSGNode(
+              new TextureSGNode(treeTexture,0,
+                new RenderSGNode(makeTree())
+              ));
+    //tree.ambient = [0, 0, 0, 0.5]; - not used because texture
+    //tree.diffuse = [0.1, 0.1, 0.1, 0.5]; - not used because texture
+    tree.specular = [0.0, 0.0, 0.0, 0];
+    tree.emission = [0,0,0,0];
+    tree.shininess = 50.0;
+
+    root.append(new TransformationSGNode(glm.transform({ translate: [25,0,-25], rotateX: 0, scale: 6}), [
+      tree
+    ]));
+  }
+
+
 
   return root;
 }
 
-function initTextures(resources)
-{
-  //floorTexture
-  {
-    floorTexture = createImage2DTexture(resources.floortexture);
-  }
-
-  //treeTexture
-  {
-    treeTexture = createImage2DTexture(resources.treetexture);
-  }
-
+function setMaterialParameter(node, ambient, diffuse, specular, emission, shininess) {
+  node.ambient = ambient;
+  node.diffuse = diffuse;
+  node.specular = specular;
+  node.emission = emission;
+  node.shininess = shininess;
 }
 
 function createImage2DTexture(image) {
@@ -230,6 +287,8 @@ function makeFloor() {
 
 function makeTree() {
   var tree = makeRect(1, 1);
+  //Texture would be upside down
+  tree.texture = [1, 1 /**/, 0, 1 /**/, 0, 0 /**/, 1, 0];
   return tree;
 }
 
@@ -361,6 +420,10 @@ loadResources({
   floortexture: 'models/floor.jpg',
   suntexture: 'models/sun.jpg',
   moontexture: 'models/moon.jpg',
+  pooltexture: 'models/poolMosaic.jpg',
+  palmtexture: 'models/Palme.png',
+  woodtexture: 'models/woodTexture.jpg',
+  poolladdermodel: 'models/poolladder.obj',
 
 /*
   env_pos_x: 'skybox/debug/Red.png',

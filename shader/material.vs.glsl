@@ -13,7 +13,7 @@ uniform mat4 u_invView;
 uniform vec3 u_lightPos;
 //second light source
 uniform vec3 u_light2Pos;
-
+uniform bool u_enableObjectTexture;
 //output of this shader
 varying vec3 v_normalVec;
 varying vec3 v_eyeVec;
@@ -31,7 +31,6 @@ void main() {
 	v_lightVec = u_lightPos - eyePosition.xyz;
 	//second light source position
 	v_light2Vec = u_light2Pos - eyePosition.xyz;
-  v_texCoord = a_texCoord;
-
+	v_texCoord = a_texCoord;
 	gl_Position = u_projection * eyePosition;
 }

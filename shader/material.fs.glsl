@@ -66,12 +66,13 @@ vec4 calculateSimplePointLight(Light light, Material material, vec3 lightVec, ve
 }
 
 void main() {
+
   vec4 textureColor = vec4(0,0,0,1);
+
   if(u_enableObjectTexture)
   {
     textureColor =  texture2D(u_tex,v_texCoord);
   }
-
 
 	gl_FragColor =
    // vec4(textureColor.r,textureColor.g,textureColor.b,textureColor.a);
