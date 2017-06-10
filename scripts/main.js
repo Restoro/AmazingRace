@@ -136,10 +136,10 @@ function createSceneGraph(gl, resources) {
     let carBodyBack = new TransformationSGNode(glm.transform({translate:[0,0,6.875], rotateY:180}),new MaterialSGNode([
         new RenderSGNode(Objects.makeCarBody(2,3,7.5))
       ]));
-    carBodyFront.ambient = [1, 0, 0, 1];
-    carBodyFront.diffuse = [1, 0, 0, 1];
-    carBodyFront.specular = [0.5, 0.5, 0.5, 1];
-    carBodyFront.shininess = 500.0;
+    carBodyBack.ambient = [1, 0, 0, 1];
+    carBodyBack.diffuse = [1, 0, 0, 1];
+    carBodyBack.specular = [0.5, 0.5, 0.5, 1];
+    carBodyBack.shininess = 500.0;
 
     //TODO Change Container method
     let carBodyMiddle = new TransformationSGNode(glm.transform({translate:[0,0,3.437], rotateZ:180}),new MaterialSGNode([
@@ -226,6 +226,30 @@ function createSceneGraph(gl, resources) {
     ]));
   }
 
+  {
+    let iceSpikeTexture = createImage2DTexture(resources.icetexture);
+    let iceSpike = new MaterialSGNode(new TextureSGNode(iceSpikeTexture,0,new RenderSGNode(Objects.makeIceSpikes(0.25,1.5))));
+    let iceSpike2 = new MaterialSGNode(new TextureSGNode(iceSpikeTexture,0,new RenderSGNode(Objects.makeIceSpikes(0.5,2))));
+    let iceSpike3 = new MaterialSGNode(new TextureSGNode(iceSpikeTexture,0,new RenderSGNode(Objects.makeIceSpikes(0.25,1.5))));
+
+
+    let iceSpikeMove = new TransformationSGNode(glm.transform({ translate: [0,0,-2], scale:2}), [
+      iceSpike
+    ]);
+
+    let iceSpikeMove2 = new TransformationSGNode(glm.transform({ translate: [0.5,0,-2.1], scale:1.6, rotateY:45}), [
+      iceSpike2
+    ]);
+
+    let iceSpikeMove3 = new TransformationSGNode(glm.transform({ translate: [0.25,0,-2.25], scale:1.2, rotateY:90}), [
+      iceSpike3
+    ]);
+
+    root.append(new TransformationSGNode(glm.transform({ translate: [-50,-1.5,-50]}), [
+      iceSpikeMove,iceSpikeMove2,iceSpikeMove3
+    ]));
+
+  }
   {
     let treeTexture = createImage2DTexture(resources.palmtexture);
     let tree = new MaterialSGNode(
@@ -423,6 +447,7 @@ loadResources({
   pooltexture: 'models/poolMosaic.jpg',
   palmtexture: 'models/Palme.png',
   woodtexture: 'models/woodTexture.jpg',
+  icetexture: 'models/IceTexture.jpg',
   poolladdermodel: 'models/poolladder.obj',
 
 /*

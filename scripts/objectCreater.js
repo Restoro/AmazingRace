@@ -50,6 +50,131 @@ class Objects {
     };
   }
 
+  static makeIceSpikes(width, height) {
+
+    var edgeWidth = width/6;
+    var spikeVertices = new Float32Array([
+
+      0, 0, 0, /**/ width, 0,0, /**/ width, height/3, 0, /**/ 0, height/2, 0,
+      width, 0,0, /**/ width + edgeWidth, 0, 0-edgeWidth, /**/ width + edgeWidth, height/3, 0-edgeWidth, /**/ width, height/3, 0,
+      width + edgeWidth, 0, 0-edgeWidth, /**/ width + edgeWidth, 0, -width, /**/ width + edgeWidth, height/2, -width, /**/ width + edgeWidth, height/3, 0-edgeWidth,
+      width + edgeWidth, 0, -width, /**/ width, 0, -width-edgeWidth, /**/ width, height/2, -width-edgeWidth, /**/ width + edgeWidth, height/2, -width,
+      width, 0, -width-edgeWidth, /**/ 0, 0, -width-edgeWidth, /**/ 0, height/3, -width-edgeWidth, /**/ width, height/2, -width-edgeWidth,
+      0, 0, -width-edgeWidth, /**/ 0-edgeWidth, 0, -width, /**/ 0-edgeWidth, height/3, -width, /**/ 0, height/3, -width-edgeWidth,
+      0-edgeWidth, 0, -width, /**/ 0-edgeWidth, 0, 0-edgeWidth, /**/ 0-edgeWidth, height/2, 0-edgeWidth, /**/ 0-edgeWidth, height/3, -width,
+      0-edgeWidth, 0, 0-edgeWidth, /**/ 0,0,0, /**/ 0,height/2,0, /**/ 0-edgeWidth, height/2, 0-edgeWidth,
+
+      width, height/3, 0, /**/  width + edgeWidth, height/3, 0-edgeWidth, /**/  width, height/3+edgeWidth, 0-edgeWidth*2,  /**/ width-edgeWidth, height/3+edgeWidth, 0-edgeWidth,
+      width + edgeWidth, height/2, -width, /**/ width, height/2, -width-edgeWidth, /**/ width-edgeWidth, height/2 +edgeWidth, -width, /**/ width, height/2 +edgeWidth, -width+edgeWidth,
+      0, height/3, -width-edgeWidth, /**/ 0-edgeWidth, height/3, -width, /**/ 0, height/3+edgeWidth, -width+edgeWidth, /**/ edgeWidth, height/3+edgeWidth, -width,
+      0-edgeWidth, height/2, 0-edgeWidth, /**/ 0,height/2,0, /**/ 0+edgeWidth,height/2+edgeWidth,0-edgeWidth, /**/ 0, height/2+edgeWidth, 0-edgeWidth*2,
+
+      width + edgeWidth, height/3, 0-edgeWidth, /**/ width + edgeWidth, height/2, -width, /**/ width, height/2 +edgeWidth, -width+edgeWidth, /**/ width, height/3+edgeWidth, 0-edgeWidth*2,
+      width, height/2, -width-edgeWidth, /**/ 0, height/3, -width-edgeWidth, /**/ edgeWidth, height/3+edgeWidth, -width, /**/  width-edgeWidth, height/2 +edgeWidth, -width,
+      0-edgeWidth, height/3, -width, /**/ 0-edgeWidth, height/2, 0-edgeWidth, /**/ 0, height/2+edgeWidth, 0-edgeWidth*2, /**/ 0, height/3+edgeWidth, -width+edgeWidth,
+      0,height/2,0, /**/ width, height/3, 0, /**/ width-edgeWidth, height/3+edgeWidth, 0-edgeWidth,  /**/ 0+edgeWidth,height/2+edgeWidth,0-edgeWidth,
+
+      0+edgeWidth,height/2+edgeWidth,0-edgeWidth, /**/ width-edgeWidth, height/3+edgeWidth, 0-edgeWidth, /**/ width-edgeWidth, height, 0-edgeWidth, /**/ 0+edgeWidth,3*height/4,0-edgeWidth,
+      width-edgeWidth, height/3+edgeWidth, 0-edgeWidth, /**/ width, height/3+edgeWidth, 0-edgeWidth*2,  /**/ width, height, 0-edgeWidth*2,  /**/ width-edgeWidth, height, 0-edgeWidth,
+      width, height/3+edgeWidth, 0-edgeWidth*2,  /**/ width, height/2 +edgeWidth, -width+edgeWidth, /**/ width, 3*height/4, -width+edgeWidth, /**/ width, height, 0-edgeWidth*2,
+      width, height/2 +edgeWidth, -width+edgeWidth, /**/ width-edgeWidth, height/2 +edgeWidth, -width, /**/ width-edgeWidth, 3*height/4, -width, /**/ width, 3*height/4, -width+edgeWidth,
+      width-edgeWidth, height/2 +edgeWidth, -width, /**/ edgeWidth, height/3+edgeWidth, -width, /**/ edgeWidth, height, -width, /**/ width-edgeWidth, 3*height/4, -width,
+      edgeWidth, height/3+edgeWidth, -width, /**/ 0, height/3+edgeWidth, -width+edgeWidth, /**/ 0, height, -width+edgeWidth, /**/ edgeWidth, height, -width,
+      0, height/3+edgeWidth, -width+edgeWidth, /**/ 0, height/2+edgeWidth, 0-edgeWidth*2, /**/ 0, 3*height/4, 0-edgeWidth*2, /**/ 0, height, -width+edgeWidth,
+      0, height/2+edgeWidth, 0-edgeWidth*2, /**/ 0+edgeWidth,height/2+edgeWidth,0-edgeWidth, /**/ 0+edgeWidth,3*height/4,0-edgeWidth, /**/ 0, 3*height/4, 0-edgeWidth*2,
+
+      width-edgeWidth, height, 0-edgeWidth, /**/ width, height, 0-edgeWidth*2,  /**/  width-edgeWidth, height+edgeWidth, 0-edgeWidth*3, /**/ width-edgeWidth*2, height+edgeWidth, 0-edgeWidth*2,
+      width, 3*height/4, -width+edgeWidth, /**/ width-edgeWidth, 3*height/4, -width, /**/ width-edgeWidth*2, 3*height/4+edgeWidth, -width+edgeWidth, /**/ width-edgeWidth, 3*height/4+edgeWidth, -width+edgeWidth*2,
+      edgeWidth, height, -width, /**/ 0, height, -width+edgeWidth, /**/  0+edgeWidth, height+edgeWidth, -width+edgeWidth*2, /**/ edgeWidth*2, height+edgeWidth, -width+edgeWidth,
+      0, 3*height/4, 0-edgeWidth*2, /**/  0+edgeWidth,3*height/4,0-edgeWidth, /**/  0+edgeWidth*2,3*height/4+edgeWidth,0-edgeWidth*2, /**/ 0+edgeWidth, 3*height/4+edgeWidth, 0-edgeWidth*3,
+
+      width, height, 0-edgeWidth*2,  /**/ width, 3*height/4, -width+edgeWidth, /**/ width-edgeWidth, 3*height/4+edgeWidth, -width+edgeWidth*2, /**/  width-edgeWidth, height+edgeWidth, 0-edgeWidth*3,
+      width-edgeWidth, 3*height/4, -width, /**/ edgeWidth, height, -width, /**/ edgeWidth*2, height+edgeWidth, -width+edgeWidth, /**/ width-edgeWidth*2, 3*height/4+edgeWidth, -width+edgeWidth,
+      0, height, -width+edgeWidth, /**/ 0, 3*height/4, 0-edgeWidth*2, /**/  0+edgeWidth, 3*height/4+edgeWidth, 0-edgeWidth*3, /**/ 0+edgeWidth, height+edgeWidth, -width+edgeWidth*2,
+      0+edgeWidth,3*height/4,0-edgeWidth, /**/   width-edgeWidth, height, 0-edgeWidth, /**/ width-edgeWidth*2, height+edgeWidth, 0-edgeWidth*2, /**/  0+edgeWidth*2,3*height/4+edgeWidth,0-edgeWidth*2,
+
+      width-edgeWidth, 3*height/4+edgeWidth, -width+edgeWidth*2, /**/width-edgeWidth*2, 3*height/4+edgeWidth, -width+edgeWidth, /**/ edgeWidth*2, height+edgeWidth, -width+edgeWidth, /**/ width-edgeWidth, height+edgeWidth, 0-edgeWidth*3,
+      0+edgeWidth, 3*height/4+edgeWidth, 0-edgeWidth*3, /**/ 0+edgeWidth*2,3*height/4+edgeWidth,0-edgeWidth*2, /**/  width-edgeWidth*2, height+edgeWidth, 0-edgeWidth*2, /**/ 0+edgeWidth, height+edgeWidth, -width+edgeWidth*2,
+      width-edgeWidth*2, height+edgeWidth, 0-edgeWidth*2, /**/ width-edgeWidth, height+edgeWidth, 0-edgeWidth*3, /**/  edgeWidth*2, height+edgeWidth, -width+edgeWidth, /**/ 0+edgeWidth, height+edgeWidth, -width+edgeWidth*2,
+    ]);
+
+
+    var spikeNormals = new Float32Array([
+      0,0,1, 0,0,1, 0,0,1, 0,0,1,
+      1,0,1, 1,0,1, 1,0,1, 1,0,1,
+      1,0,0, 1,0,0, 1,0,0, 1,0,0,
+      1,0,-1, 1,0,-1, 1,0,-1, 1,0,-1,
+      0,0,-1, 0,0,-1, 0,0,-1, 0,0,-1,
+      -1,0,-1, -1,0,-1, -1,0,-1, -1,0,-1,
+      -1,0,0, -1,0,0, -1,0,0, -1,0,0,
+      -1,0,1, -1,0,1, -1,0,1, -1,0,1,
+
+      1,edgeWidth,1, 1,edgeWidth,1, 1,edgeWidth,1, 1,edgeWidth,1,
+      1,edgeWidth,-1, 1,edgeWidth,-1, 1,edgeWidth,-1, 1,edgeWidth,-1,
+      -1,edgeWidth,-1, -1,edgeWidth,-1, -1,edgeWidth,-1, -1,edgeWidth,-1,
+      -1,edgeWidth,1, -1,edgeWidth,1, -1,edgeWidth,1, -1,edgeWidth,1,
+
+      1,edgeWidth,1, 1,edgeWidth,1, 1,edgeWidth,-1, 1,edgeWidth,-1,
+      1,edgeWidth,-1, 1,edgeWidth,-1, -1,edgeWidth,-1, -1,edgeWidth,-1,
+      -1,edgeWidth,-1, -1,edgeWidth,-1, -1,edgeWidth,1, -1,edgeWidth,1,
+      -1,edgeWidth,1, -1,edgeWidth,1, 1,edgeWidth,1, 1,edgeWidth,1,
+
+      0,0,1, 0,0,1, 0,0,1, 0,0,1,
+      1,0,1, 1,0,1, 1,0,1, 1,0,1,
+      1,0,0, 1,0,0, 1,0,0, 1,0,0,
+      1,0,-1, 1,0,-1, 1,0,-1, 1,0,-1,
+      0,0,-1, 0,0,-1, 0,0,-1, 0,0,-1,
+      -1,0,-1, -1,0,-1, -1,0,-1, -1,0,-1,
+      -1,0,0, -1,0,0, -1,0,0, -1,0,0,
+      -1,0,1, -1,0,1, -1,0,1, -1,0,1,
+
+      1,edgeWidth,1, 1,edgeWidth,1, 1,edgeWidth,1, 1,edgeWidth,1,
+      1,edgeWidth,-1, 1,edgeWidth,-1, 1,edgeWidth,-1, 1,edgeWidth,-1,
+      -1,edgeWidth,-1, -1,edgeWidth,-1, -1,edgeWidth,-1, -1,edgeWidth,-1,
+      -1,edgeWidth,1, -1,edgeWidth,1, -1,edgeWidth,1, -1,edgeWidth,1,
+
+      1,edgeWidth,1, 1,edgeWidth,1, 1,edgeWidth,-1, 1,edgeWidth,-1,
+      1,edgeWidth,-1, 1,edgeWidth,-1, -1,edgeWidth,-1, -1,edgeWidth,-1,
+      -1,edgeWidth,-1, -1,edgeWidth,-1, -1,edgeWidth,1, -1,edgeWidth,1,
+      -1,edgeWidth,1, -1,edgeWidth,1, 1,edgeWidth,1, 1,edgeWidth,1,
+
+      1,edgeWidth,1, 1,edgeWidth,1, 1,edgeWidth,1, 1,edgeWidth,1,
+      -1,edgeWidth,-1, -1,edgeWidth,-1, -1,edgeWidth,-1, -1,edgeWidth,-1,
+
+      0,1,0, 0,1,0, 0,1,0, 0,1,0
+    ]);
+
+    var spikeIndexData = [];
+    for(var i=0; i < spikeVertices.length/3; i+=4) {
+      spikeIndexData.push(i)
+      spikeIndexData.push(i+1);
+      spikeIndexData.push(i+2);
+      spikeIndexData.push(i);
+      spikeIndexData.push(i+2);
+      spikeIndexData.push(i+3);
+    }
+
+    var spikeTextures = new Float32Array([]);
+    var spikeTexture = [];
+    for (var i=0; i < spikeVertices.length; i++) {
+      spikeTexture.push(0);
+      spikeTexture.push(0);
+      spikeTexture.push(1);
+      spikeTexture.push(0);
+      spikeTexture.push(1);
+      spikeTexture.push(1);
+      spikeTexture.push(0);
+      spikeTexture.push(1);
+    }
+
+    return {
+      position: spikeVertices,
+      normal: spikeNormals,
+      index: spikeIndexData,
+      texture: spikeTexture
+    };
+  }
+
   static makePoolEdge(width, depth) {
     const offset = 3;
     const height = 0.5
