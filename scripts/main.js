@@ -72,15 +72,13 @@ function createSceneGraph(gl, resources) {
               new TextureSGNode(floorTexture,0,
                 new RenderSGNode(makeFloor())
               ));
-    floor.ambient = [0, 0, 0, 1];
-    floor.diffuse = [0.1, 0.1, 0.1, 1];
-    floor.specular = [0.0, 0.0, 0.0, 1];
-    floor.shininess = 50.0;
-    root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 3}), [
+    setMaterialParameter(floor,  [0, 0, 0, 1], [0.1, 0.1, 0.1, 1], [0.0, 0.0, 0.0, 1], [0,0,0,1], 50.0);
+    root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 2}), [
       floor
     ]));
   }
 
+  //sun
   {
     //initialize light
     sunLight = new LightSGNode(); //use now framework implementation of light node
@@ -102,6 +100,7 @@ function createSceneGraph(gl, resources) {
     root.append(animateLight);
   }
 
+  //moon
   {
     moonLight = new LightSGNode(); //use now framework implementation of light node
     moonLight.ambient = [0.2, 0.2, 0.2, 1];
@@ -124,32 +123,121 @@ function createSceneGraph(gl, resources) {
   }
   //car
   {
-    let carNode = new TransformationSGNode(glm.transform({ translate: [0,2,4]}));
+    let texture = createImage2DTexture(resources.metaltexture);
+    let wheelTexture = createImage2DTexture(resources.wheeltexture);
+
+    let carNode = new TransformationSGNode(glm.transform({ translate: [0,-1,-37.5], scale:0.75, rotateY:90}));
     let carBodyFront = new MaterialSGNode([
-        new RenderSGNode(Objects.makeCarBody(2,3,7.5))
+        new RenderSGNode(Objects.makeCarBody(2,3,9.5))
       ]);
-    carBodyFront.ambient = [1, 0, 0, 1];
-    carBodyFront.diffuse = [1, 0, 0, 1];
-    carBodyFront.specular = [0.5, 0.5, 0.5, 1];
-    carBodyFront.shininess = 500.0;
+    setMaterialParameter(carBodyFront, [0.9,0.9,0.9,1], [0.9,0.9,0.9,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
 
-    let carBodyBack = new TransformationSGNode(glm.transform({translate:[0,0,6.875], rotateY:180}),new MaterialSGNode([
-        new RenderSGNode(Objects.makeCarBody(2,3,7.5))
-      ]));
-    carBodyBack.ambient = [1, 0, 0, 1];
-    carBodyBack.diffuse = [1, 0, 0, 1];
-    carBodyBack.specular = [0.5, 0.5, 0.5, 1];
-    carBodyBack.shininess = 500.0;
+    let tireTransform = new TransformationSGNode(glm.transform({translate:[1.7,0.1,7.8], scale:[0.3,0.6,0.6], rotateY:180}));
 
-    //TODO Change Container method
-    let carBodyMiddle = new TransformationSGNode(glm.transform({translate:[0,0,3.437], rotateZ:180}),new MaterialSGNode([
-        new RenderSGNode(Objects.makeContainer(2,1.25,3))
-      ]));
+    let tire = new MaterialSGNode([
+        new RenderSGNode(makeSphere(1))
+      ]);
+    setMaterialParameter(tire, [0,0,0,1], [0,0,0,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    let tireAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 200, {rotateX:-0.5}, [tire]);
+    tireTransform.append(tireAnimation);
+    carBodyFront.append(new TextureSGNode(wheelTexture, 0, tireTransform));
 
-    carNode.append(carBodyFront);
-    carNode.append(carBodyBack);
-    carNode.append(carBodyMiddle);
-    root.append(carNode);
+    let tire2Transform = new TransformationSGNode(glm.transform({translate:[-1.7,0.1,7.8], scale:[0.3,0.6,0.6]}));
+    let tire2 = new MaterialSGNode([
+        new RenderSGNode(makeSphere(1))
+      ]);
+    setMaterialParameter(tire2, [0,0,0,1], [0,0,0,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    let tire2Animation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 200, {rotateX:0.5}, [tire2]);
+    tire2Transform.append(tire2Animation);
+    carBodyFront.append(new TextureSGNode(wheelTexture, 0, tire2Transform));
+
+    let carBodyBackTransform = new TransformationSGNode(glm.transform({translate:[0,0,7.57], rotateY:180}));
+    let carBodyBack = new MaterialSGNode([
+        new RenderSGNode(Objects.makeCarBody(2,3,9))
+      ]);
+    setMaterialParameter(carBodyBack, [0.9,0.9,0.9,1], [0.9,0.9,0.9,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    carBodyBackTransform.append(new TextureSGNode(texture, 0, carBodyBack));
+
+    let tire3Transform = new TransformationSGNode(glm.transform({translate:[1.7,0.1,7.35], scale:[0.3,0.6,0.6], rotateY:180}));
+    let tire3 = new MaterialSGNode([
+        new RenderSGNode(makeSphere(1))
+      ]);
+    setMaterialParameter(tire3, [0,0,0,1], [0,0,0,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    let tire3Animation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 200, {rotateX:0.5}, [tire3]);
+    tire3Transform.append(tire3Animation);
+    carBodyBackTransform.append(new TextureSGNode(wheelTexture, 0, tire3Transform));
+
+    let tire4Transform = new TransformationSGNode(glm.transform({translate:[-1.7,0.1,7.35], scale:[0.3,0.6,0.6]}));
+    let tire4 = new MaterialSGNode([
+        new RenderSGNode(makeSphere(1))
+      ]);
+    setMaterialParameter(tire4, [0,0,0,1], [0,0,0,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    let tire4Animation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 200, {rotateX:-0.5}, [tire4]);
+    tire4Transform.append(tire4Animation);
+    carBodyBackTransform.append(new TextureSGNode(wheelTexture, 0, tire4Transform));
+
+    let carBodyMiddleTransform = new TransformationSGNode(glm.transform({translate:[0,0.9,3.94], scale:[1,0.45,1]}));
+    let carBodyMiddle = new MaterialSGNode([
+        new RenderSGNode(Objects.makeCube(2))
+      ]);
+    setMaterialParameter(carBodyMiddle, [0.9,0.9,0.9,1], [0.9,0.9,0.9,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    carBodyMiddleTransform.append(new TextureSGNode(texture, 0, carBodyMiddle));
+
+    let carScreenLeftTransform = new TransformationSGNode(glm.transform({translate:[-1.9,3.5,1.9], scale:[0.1,1.5,0.1]}));
+    let carScreenLeft = new MaterialSGNode([
+        new RenderSGNode(Objects.makeCube(1))
+      ]);
+    setMaterialParameter(carScreenLeft, [0.9,0.9,0.9,1], [0.9,0.9,0.9,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    carScreenLeftTransform.append(carScreenLeft);
+    carBodyMiddleTransform.append(new TextureSGNode(texture, 0, carScreenLeftTransform));
+
+    let carScreenRightTransform = new TransformationSGNode(glm.transform({translate:[1.9,3.5,1.9], scale:[0.1,1.5,0.1]}));
+    let carScreenRight = new MaterialSGNode([
+        new RenderSGNode(Objects.makeCube(1))
+      ]);
+    setMaterialParameter(carScreenRight, [0.9,0.9,0.9,1], [0.9,0.9,0.9,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    carScreenRightTransform.append(carScreenRight);
+    carBodyMiddleTransform.append(new TextureSGNode(texture, 0, carScreenRightTransform));
+
+    let carScreenLeftBackTransform = new TransformationSGNode(glm.transform({translate:[-1.9,3.5,-1.9], scale:[0.1,1.5,0.1]}));
+    let carScreenLeftBack = new MaterialSGNode([
+        new RenderSGNode(Objects.makeCube(1))
+      ]);
+    setMaterialParameter(carScreenLeftBack, [0.9,0.9,0.9,1], [0.9,0.9,0.9,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    carScreenLeftBackTransform.append(carScreenLeftBack);
+    carBodyMiddleTransform.append(new TextureSGNode(texture, 0, carScreenLeftBackTransform));
+
+    let carScreenRightBackTransform = new TransformationSGNode(glm.transform({translate:[1.9,3.5,-1.9], scale:[0.1,1.5,0.1]}));
+    let carScreenRightBack = new MaterialSGNode([
+        new RenderSGNode(Objects.makeCube(1))
+      ]);
+    setMaterialParameter(carScreenRightBack, [0.9,0.9,0.9,1], [0.9,0.9,0.9,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    carScreenRightBackTransform.append(carScreenRightBack);
+    carBodyMiddleTransform.append(new TextureSGNode(texture, 0, carScreenRightBackTransform));
+
+    let carRoofTransform = new TransformationSGNode(glm.transform({translate:[0,5.2,0], scale:[2,0.2,2]}));
+    let carRoof = new MaterialSGNode([
+        new RenderSGNode(Objects.makeCube(1))
+      ]);
+    setMaterialParameter(carRoof, [0.9,0.9,0.9,1], [0.9,0.9,0.9,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    carRoofTransform.append(carRoof);
+    carBodyMiddleTransform.append(new TextureSGNode(texture, 0, carRoofTransform));
+
+    let carInteriorTransform = new TransformationSGNode(glm.transform({translate:[0,3.5,0], scale:[1.9,1.5,1.9]}));
+    let carInterior = new MaterialSGNode([
+        new RenderSGNode(Objects.makeCube(1))
+      ]);
+    setMaterialParameter(carInterior, [0,0,0,1], [0,0,0,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
+    carInteriorTransform.append(carInterior);
+    carBodyMiddleTransform.append(carInteriorTransform);
+
+    carNode.append(new TextureSGNode(texture, 0, carBodyFront));
+    carNode.append(carBodyBackTransform);
+    carNode.append(carBodyMiddleTransform);
+
+    let carAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateY:-0.005}, [carNode]);
+
+    root.append(carAnimation);
   }
 
   //pool
@@ -183,11 +271,12 @@ function createSceneGraph(gl, resources) {
     poolObject.append(waterShader);
     poolObject.append(poolEdgeObject);
 
-    let completePool = new TransformationSGNode(glm.transform({ translate: [-25,10,25], scale:1.0}), [poolObject]);
+    let completePool = new TransformationSGNode(glm.transform({ translate: [-25,10,25], scale:0.5}), [poolObject]);
     root.append(completePool);
 
   }
 
+  //snowman
   {
     let snowManNode = new TransformationSGNode(glm.transform({ translate: [1,0,0], scale:1.0}));
     let snowManNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, {rotateY:0.1}, [snowManNode]);
@@ -226,30 +315,104 @@ function createSceneGraph(gl, resources) {
     ]));
   }
 
+  //beachball
+  {
+    let beachBallNode = new TransformationSGNode(glm.transform({ translate: [0,1,0], scale:1.0}));
+    let beachBallNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, {rotateXSin:[0.005,100,0]}, [beachBallNode]);
+
+    let beachBallTexture = createImage2DTexture(resources.beachballtexture);
+    let beachBall = new TextureSGNode(beachBallTexture,0,new RenderSGNode(makeSphere(0.4)));
+    beachBallNode.append(beachBall);
+
+    root.append(new TransformationSGNode(glm.transform({ translate: [-25,-1,25]}), [
+      beachBallNodeAnimate
+    ]));
+  }
+
+  //wood fence
+  {
+
+    let fullFence = new TransformationSGNode(glm.transform({ translate: [-50,-0.5,-4], scale:1.0}));
+    let fenceX = new TransformationSGNode(glm.transform({ translate: [0,0,0], scale:1.0}));
+    for(var i=0; i < 14; i++) {
+      let fenceTransform = new TransformationSGNode(glm.transform({ translate: [0,0,i*4], scale:1.0,rotateY:90, rotateZ:180}));
+      let fenceTexture = createImage2DTexture(resources.woodfencetexture);
+      let fence = new MaterialSGNode(new TextureSGNode(fenceTexture,0,new RenderSGNode(makeRect(2,1))));
+      setMaterialParameter(fence, [0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0], 200);
+      fenceTransform.append(fence);
+      fenceX.append(fenceTransform);
+    }
+    let fenceY = new TransformationSGNode(glm.transform({ translate: [2,0,54], scale:1.0}));
+    for(var i=0; i < 13; i++) {
+      let fenceTransform = new TransformationSGNode(glm.transform({ translate: [i*4,0,0], scale:1.0, rotateZ:180}));
+      let fenceTexture = createImage2DTexture(resources.woodfencetexture);
+      let fence = new MaterialSGNode(new TextureSGNode(fenceTexture,0,new RenderSGNode(makeRect(2,1))));
+      setMaterialParameter(fence, [0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0], 200);
+      fenceTransform.append(fence);
+      fenceY.append(fenceTransform);
+    }
+    let wholeSharkShield = new TransformationSGNode(glm.transform({ translate: [-30,-0.5,49]}));
+
+    let sharkShieldTexture = createImage2DTexture(resources.sharkshieldtexture);
+    let sharkShield = new MaterialSGNode(new TextureSGNode(sharkShieldTexture,0,new RenderSGNode(makeRect(2,1))));
+    setMaterialParameter(sharkShield, [0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0], 200);
+    let sharkShieldTransform = new TransformationSGNode(glm.transform({ translate: [0,1,-0.15], rotateZ:180}), sharkShield);
+    wholeSharkShield.append(sharkShieldTransform);
+
+    let sharkShieldPole = new MaterialSGNode(new RenderSGNode(Objects.makeCube(1)));
+    setMaterialParameter(sharkShield, [0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0], 200);
+    let sharkShieldPoleTransform = new TransformationSGNode(glm.transform({ translate: [0,0,0], scale:[0.1,1.0,0.1]}), sharkShieldPole);
+    wholeSharkShield.append(sharkShieldPoleTransform)
+
+    fullFence.append(fenceX);
+    fullFence.append(fenceY);
+    root.append(fullFence);
+    root.append(wholeSharkShield);
+
+
+
+
+  }
+
+  //icespikes
   {
     let iceSpikeTexture = createImage2DTexture(resources.icetexture);
-    let iceSpike = new MaterialSGNode(new TextureSGNode(iceSpikeTexture,0,new RenderSGNode(Objects.makeIceSpikes(0.25,1.5))));
-    let iceSpike2 = new MaterialSGNode(new TextureSGNode(iceSpikeTexture,0,new RenderSGNode(Objects.makeIceSpikes(0.5,2))));
-    let iceSpike3 = new MaterialSGNode(new TextureSGNode(iceSpikeTexture,0,new RenderSGNode(Objects.makeIceSpikes(0.25,1.5))));
+    let iceSpike = new MaterialSGNode(new TextureSGNode(iceSpikeTexture,0,new RenderSGNode(Objects.makeIceSpikes(1.25,4.5))));
+    let iceSpike2 = new MaterialSGNode(new TextureSGNode(iceSpikeTexture,0,new RenderSGNode(Objects.makeIceSpikes(1.5,5))));
+    let iceSpike3 = new MaterialSGNode(new TextureSGNode(iceSpikeTexture,0,new RenderSGNode(Objects.makeIceSpikes(1.25,3.5))));
+
+    let randomIce = [];
+    for(var i=0; i < 30; i++) {
+      let width = Math.random() * 2 + 0.25;
+      let height = Math.random() * 5 + 1;
+      let translateX = Math.random() * 20 +2;
+      let translateZ = Math.random() * 20;
+      let rotY = Math.random() * 180;
+
+      let iceSpikeRandom = new MaterialSGNode(new TextureSGNode(iceSpikeTexture,0,new RenderSGNode(Objects.makeIceSpikes(width,height))));
+      let iceSpikeRandomMove = new TransformationSGNode(glm.transform({ translate: [translateX,0,translateZ], rotateY:rotY}), [
+        iceSpikeRandom
+      ]);
+      randomIce.push(iceSpikeRandomMove)
+    }
 
 
-    let iceSpikeMove = new TransformationSGNode(glm.transform({ translate: [0,0,-2], scale:2}), [
+    let iceSpikeMove = new TransformationSGNode(glm.transform({ translate: [0,0,-2], scale:1}), [
       iceSpike
     ]);
 
-    let iceSpikeMove2 = new TransformationSGNode(glm.transform({ translate: [0.5,0,-2.1], scale:1.6, rotateY:45}), [
+    let iceSpikeMove2 = new TransformationSGNode(glm.transform({ translate: [0.5,0,-2.1], scale:1, rotateY:45}), [
       iceSpike2
     ]);
 
-    let iceSpikeMove3 = new TransformationSGNode(glm.transform({ translate: [0.25,0,-2.25], scale:1.2, rotateY:90}), [
+    let iceSpikeMove3 = new TransformationSGNode(glm.transform({ translate: [0.25,0,-2.25], scale:1, rotateY:90}), [
       iceSpike3
     ]);
 
-    root.append(new TransformationSGNode(glm.transform({ translate: [-50,-1.5,-50]}), [
-      iceSpikeMove,iceSpikeMove2,iceSpikeMove3
-    ]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [-50,-1.5,-50]}), randomIce));
 
   }
+  //tree
   {
     let treeTexture = createImage2DTexture(resources.palmtexture);
     let tree = new MaterialSGNode(
@@ -449,6 +612,11 @@ loadResources({
   woodtexture: 'models/woodTexture.jpg',
   icetexture: 'models/IceTexture.jpg',
   poolladdermodel: 'models/poolladder.obj',
+  metaltexture: 'models/metalTexture.jpg',
+  wheeltexture: 'models/wheelTexture.jpg',
+  beachballtexture: 'models/beachballTexture.jpg',
+  woodfencetexture: 'models/woodFence.png',
+  sharkshieldtexture: 'models/sharkShield.png',
 
 /*
   env_pos_x: 'skybox/debug/Red.png',

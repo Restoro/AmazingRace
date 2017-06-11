@@ -154,9 +154,8 @@ class Objects {
       spikeIndexData.push(i+3);
     }
 
-    var spikeTextures = new Float32Array([]);
     var spikeTexture = [];
-    for (var i=0; i < spikeVertices.length; i++) {
+    for (var i=0; i < spikeVertices.length; i+=12) {
       spikeTexture.push(0);
       spikeTexture.push(0);
       spikeTexture.push(1);
@@ -233,20 +232,20 @@ class Objects {
   static makeCarBody(width, height, depth) {
     var bodyVertices = new Float32Array([
       -width,0, depth, /**/ width,0, depth, /**/ width, height/2, depth, /**/-width, height/2, depth, //Front
-      -width, height/2,depth, /**/  width, height/2,depth, /**/  width, (height+0.12)/2, 1.25*depth/2, /**/ -width, (height+0.12)/2,1.25*depth/2, //bonnet
+      -width, height/2,depth, /**/  width, height/2,depth, /**/  width, (height+0.6)/2, 1.25*depth/2, /**/ -width, (height+0.6)/2,1.25*depth/2, //bonnet
 
-      width,0, depth, /**/ width, 0, 8*depth/9, /**/ width, (height+0.04)/2, 8*depth/9, /**/  width, height/2, depth, //Side Right
-      width, height/3.5, 8*depth/9, /**/ width, height/3.5, 3*depth/4, /**/ width, (height+0.08)/2, 3*depth/4, /**/ width, (height+0.04)/2, 8*depth/9, //Side Right above wheel
-      width, 0, 3*depth/4, /**/ width, 0, 1.25*depth/2, /**/ width, (height+0.12)/2, 1.25*depth/2, /**/ width, (height+0.08)/2, 3*depth/4, //Side right
+      width,0, depth, /**/ width, 0, 8*depth/9, /**/ width, (height+0.2)/2, 8*depth/9, /**/  width, height/2, depth, //Side Right
+      width, height/3.5, 8*depth/9, /**/ width, height/3.5, 3*depth/4, /**/ width, (height+0.4)/2, 3*depth/4, /**/ width, (height+0.2)/2, 8*depth/9, //Side Right above wheel
+      width, 0, 3*depth/4, /**/ width, 0, 1.25*depth/2, /**/ width, (height+0.6)/2, 1.25*depth/2, /**/ width, (height+0.4)/2, 3*depth/4, //Side right
 
       width, 0, 8*depth/9, /**/ 5*width/8, 0, 8*depth/9, /**/ 5*width/8, height/3.5, 8*depth/9, /**/ width, height/3.5, 8*depth/9, //Side right front wheel
       5*width/8, height/3.5, 8*depth/9, /**/ width, height/3.5, 8*depth/9, /**/ width, height/3.5, 3*depth/4, /**/ 5*width/8, height/3.5, 3*depth/4,
       5*width/8, 0, 3*depth/4, /**/ width, 0, 3*depth/4, /**/ width, height/3.5, 3*depth/4, /**/ 5*width/8, height/3.5, 3*depth/4,
        5*width/8, 0, 8*depth/9, /**/ 5*width/8, 0, 3*depth/4, /**/ 5*width/8, height/3.5, 3*depth/4, /**/ 5*width/8, height/3.5, 8*depth/9,
 
-      -width,0, depth, /**/ -width, 0, 8*depth/9, /**/ -width, (height+0.04)/2, 8*depth/9, /**/  -width, height/2, depth, //Side Left
-      -width, height/3.5, 8*depth/9, /**/ -width, height/3.5, 3*depth/4, /**/ -width, (height+0.08)/2, 3*depth/4, /**/ -width, (height+0.04)/2, 8*depth/9, //Side Left above wheel
-      -width, 0, 3*depth/4, /**/ -width, 0, 1.25*depth/2, /**/ -width, (height+0.12)/2, 1.25*depth/2, /**/ -width, (height+0.08)/2, 3*depth/4, //Side Left
+      -width,0, depth, /**/ -width, 0, 8*depth/9, /**/ -width, (height+0.2)/2, 8*depth/9, /**/  -width, height/2, depth, //Side Left
+      -width, height/3.5, 8*depth/9, /**/ -width, height/3.5, 3*depth/4, /**/ -width, (height+0.4)/2, 3*depth/4, /**/ -width, (height+0.2)/2, 8*depth/9, //Side Left above wheel
+      -width, 0, 3*depth/4, /**/ -width, 0, 1.25*depth/2, /**/ -width, (height+0.6)/2, 1.25*depth/2, /**/ -width, (height+0.4)/2, 3*depth/4, //Side Left
 
       -width, 0, 8*depth/9, /**/ 5*-width/8, 0, 8*depth/9, /**/ 5*-width/8, height/3.5, 8*depth/9, /**/ -width, height/3.5, 8*depth/9, //Side left front wheel
       5*-width/8, height/3.5, 8*depth/9, /**/ -width, height/3.5, 8*depth/9, /**/ -width, height/3.5, 3*depth/4, /**/ 5*-width/8, height/3.5, 3*depth/4,
@@ -284,10 +283,23 @@ class Objects {
       bodyIndexData.push(i+3);
     }
 
+    var bodyTextures = [];
+    for (var i=0; i < bodyVertices.length; i+=12) {
+      bodyTextures.push(0);
+      bodyTextures.push(0);
+      bodyTextures.push(1);
+      bodyTextures.push(0);
+      bodyTextures.push(1);
+      bodyTextures.push(1);
+      bodyTextures.push(0);
+      bodyTextures.push(1);
+    }
+
     return {
       position: bodyVertices,
       index: bodyIndexData,
-      normal: bodyNormals
+      normal: bodyNormals,
+      texture: bodyTextures
     }
   }
 
@@ -323,6 +335,18 @@ class Objects {
        0, 0 /**/, (1/height), 0 /**/, (1/height), 1 /**/, 0, 1,
        0, 0 /**/, 1, 0 /**/, 1, 1 /**/, 0, 1,
     ]);
+
+    var cubeTextures = [];
+    for (var i=0; i < cubeVertices.length; i+=12) {
+      cubeTextures.push(0);
+      cubeTextures.push(0);
+      cubeTextures.push(1);
+      cubeTextures.push(0);
+      cubeTextures.push(1);
+      cubeTextures.push(1);
+      cubeTextures.push(0);
+      cubeTextures.push(1);
+    }
 
     return {
       position: cubeVertices,
@@ -401,10 +425,23 @@ class Objects {
        20,21,22, 20,22,23
     ]);
 
+    var cubeTextures = [];
+    for (var i=0; i < cubeVertices.length; i+=12) {
+      cubeTextures.push(0);
+      cubeTextures.push(0);
+      cubeTextures.push(1);
+      cubeTextures.push(0);
+      cubeTextures.push(1);
+      cubeTextures.push(1);
+      cubeTextures.push(0);
+      cubeTextures.push(1);
+    }
+
     return {
       position: cubeVertices,
       normal: cubeNormals,
-      index: cubeIndices
+      index: cubeIndices,
+      texture: cubeTextures
     };
   }
 

@@ -25,7 +25,6 @@ struct Light {
 
 uniform Material u_material;
 uniform Light u_light;
-//TASK 5-5 use uniform for 2nd light
 uniform Light u_light2;
 
 //varying vectors for light computation
@@ -35,13 +34,23 @@ varying vec3 v_lightVec;
 varying vec3 v_light2Vec;
 
 uniform bool u_enableObjectTexture;
+
 varying vec2 v_texCoord;
+
+varying vec4 v_ambient;
+varying	vec4 v_diffuse;
+varying	vec4 v_specular;
+varying	vec4 v_emission;
+varying	float v_shininess;
+
 uniform sampler2D u_tex;
 
 vec4 calculateSimplePointLight(Light light, Material material, vec3 lightVec, vec3 normalVec, vec3 eyeVec,vec4 textureColor) {
 	lightVec = normalize(lightVec);
 	normalVec = normalize(normalVec);
 	eyeVec = normalize(eyeVec);
+
+	Material materialV = Material(v_ambient, v_diffuse, v_specular, v_emission, v_shininess);
 
 		//TASK 1-1 implement phong shader
 	//compute diffuse term
