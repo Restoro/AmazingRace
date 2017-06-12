@@ -70,7 +70,7 @@ function createSceneGraph(gl, resources) {
     let floorTexture = createImage2DTexture(resources.floortexture);
     let floor = new MaterialSGNode(
               new TextureSGNode(floorTexture,0,
-                new RenderSGNode(makeFloor())
+                new RenderSGNode(makeRect(25, 25))
               ));
     setMaterialParameter(floor,  [0, 0, 0, 1], [0.1, 0.1, 0.1, 1], [0.0, 0.0, 0.0, 1], [0,0,0,1], 50.0);
     root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 2}), [
@@ -127,7 +127,7 @@ function createSceneGraph(gl, resources) {
     let texture = createImage2DTexture(resources.metaltexture);
     let wheelTexture = createImage2DTexture(resources.wheeltexture);
 
-    let carNode = new TransformationSGNode(glm.transform({ translate: [0,-1,-37.5], scale:0.75, rotateY:90}));
+    let carNode = new TransformationSGNode(glm.transform({ translate: [0,-1,-34], scale:0.75, rotateY:90}));
     let carBodyFront = new MaterialSGNode([
         new RenderSGNode(Objects.makeCarBody(2,3,9.5))
       ]);
@@ -236,7 +236,7 @@ function createSceneGraph(gl, resources) {
     carNode.append(carBodyBackTransform);
     carNode.append(carBodyMiddleTransform);
 
-    let carAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateY:-0.005}, [carNode]);
+    let carAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateY:-0.05}, [carNode]);
 
     root.append(carAnimation);
   }
@@ -272,14 +272,14 @@ function createSceneGraph(gl, resources) {
     poolObject.append(waterShader);
     poolObject.append(poolEdgeObject);
 
-    let completePool = new TransformationSGNode(glm.transform({ translate: [-25,10,25], scale:0.5}), [poolObject]);
+    let completePool = new TransformationSGNode(glm.transform({ translate: [-40,1,40], scale:0.5}), [poolObject]);
     root.append(completePool);
 
   }
 
   //snowman
   {
-    let snowManNode = new TransformationSGNode(glm.transform({ translate: [1,0,0], scale:1.0}));
+    let snowManNode = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
     let snowManNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, {rotateY:0.1}, [snowManNode]);
 
     let snowManLowMaterial  = new MaterialSGNode([new RenderSGNode(makeSphere(0.5))]);
@@ -311,7 +311,7 @@ function createSceneGraph(gl, resources) {
     snowManNode.append(snowManHigh);
     snowManNode.append(snowManArms);
 
-    root.append(new TransformationSGNode(glm.transform({ translate: [-25,-1,-25]}), [
+    root.append(new TransformationSGNode(glm.transform({ translate: [-15,-1,-15]}), [
       snowManNodeAnimate
     ]));
   }
@@ -325,7 +325,7 @@ function createSceneGraph(gl, resources) {
     let beachBall = new TextureSGNode(beachBallTexture,0,new RenderSGNode(makeSphere(0.4)));
     beachBallNode.append(beachBall);
 
-    root.append(new TransformationSGNode(glm.transform({ translate: [-25,-1,25]}), [
+    root.append(new TransformationSGNode(glm.transform({ translate: [-35,-1,20]}), [
       beachBallNodeAnimate
     ]));
   }
@@ -416,7 +416,7 @@ function createSceneGraph(gl, resources) {
 
   //tree
   {
-    let treeTexture = createImage2DTexture(resources.palmtexture);
+    let treeTexture = createImage2DTexture(resources.treetexture);
     let tree = new MaterialSGNode(
               new TextureSGNode(treeTexture,0,
                 new RenderSGNode(makeTree())
@@ -427,12 +427,26 @@ function createSceneGraph(gl, resources) {
     tree.emission = [0,0,0,0];
     tree.shininess = 50.0;
 
-    root.append(new TransformationSGNode(glm.transform({ translate: [25,0,-25], rotateX: 0, scale: 6}), [
-      tree
-    ]));
+    let treeAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, { treeRotate:tree});
+    treeAnimation.append(tree);
+    root.append(new TransformationSGNode(glm.transform({ translate: [30,4.5,-40], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [30,4.5,-35], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [40,4.5,-40], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [30,4.5,40], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [0,4.5,10], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [10,4.5,0], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [15,4.5,0], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [15,4.5,15], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [0,4.5,15], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [20,4.5,5], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [15,4.5,9], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [30,4.5,-4], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [20,4.5,45], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [35,4.5,35], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [15,4.5,35], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [15,4.5,15], scale: 6}), [ treeAnimation]));
+
   }
-
-
 
   return root;
 }
@@ -469,15 +483,11 @@ function createImage2DTexture(image) {
   return textureNode;
 }
 
-function makeFloor() {
-  var floor = makeRect(25, 25);
-  return floor;
-}
 
 function makeTree() {
   var tree = makeRect(1, 1);
   //Texture would be upside down
-  tree.texture = [1, 1 /**/, 0, 1 /**/, 0, 0 /**/, 1, 0];
+//  tree.texture = [1, 1 /**/, 0, 1 /**/, 0, 0 /**/, 1, 0];
   return tree;
 }
 
@@ -535,6 +545,7 @@ function initInteraction(canvas) {
     //https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent
     switch(event.code) {
       case "KeyR":
+
         camera.rotation.x = 90;
     		camera.rotation.y = 0;
         camera.position.xy = 0;
@@ -606,7 +617,7 @@ loadResources({
   materialvs: 'shader/material.vs.glsl',
   materialfs: 'shader/material.fs.glsl',
   treetexture:'models/tree1.png',
-  floortexture: 'models/floor.jpg',
+  floortexture: 'models/ffloor.png',
   suntexture: 'models/sun.jpg',
   moontexture: 'models/moon.jpg',
   pooltexture: 'models/poolMosaic.jpg',
@@ -619,6 +630,7 @@ loadResources({
   beachballtexture: 'models/beachballTexture.jpg',
   woodfencetexture: 'models/woodFence.png',
   sharkshieldtexture: 'models/sharkShield.png',
+
 
 /*
   env_pos_x: 'skybox/debug/Red.png',

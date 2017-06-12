@@ -22,7 +22,30 @@ class AnimationSGNode extends TransformationSGNode{
       this.time += context.deltaTime;
       if(this.functionParameter.waterWave) {
         this.functionParameter.waterWave.timeInMilliseconds = this.time;
-      } else {
+      } else if(this.functionParameter.treeRotate){
+          let identity = mat4.create();
+          let view = mat4.multiply(mat4.create,identity, this.camera.computeViewMatrix());
+          let billboard = mat4.create();
+
+          billboard[0] = view[0];
+          billboard[1] = view[4];
+          billboard[2] = view[8];
+          billboard[3] = this.position[0];
+          billboard[4] = view[1];
+          billboard[5] = view[5];
+          billboard[6] = view[9];
+          billboard[7] = this.position[1];
+          billboard[8] = view[2];
+          billboard[9] = view[6];
+          billboard[10] = view[10];
+          billboard[11] = this.position[2];
+          billboard[12] = 0.0;
+          billboard[13] = 0.0;
+          billboard[14] = 0.0;
+          billboard[15] = 1.0;
+
+        this.matrix = mat4.multiply(mat4.create(),identity,billboard);
+      }else{
         this.matrix = glm.transform(this.addTimeToParameter(this.functionParameter));
         this.latestMatrix = this.matrix;
       }
