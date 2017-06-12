@@ -65,7 +65,7 @@ function createSceneGraph(gl, resources) {
     ]);
   }
 
-    //floor
+  //floor
   {
     let floorTexture = createImage2DTexture(resources.floortexture);
     let floor = new MaterialSGNode(
@@ -121,6 +121,7 @@ function createSceneGraph(gl, resources) {
     root.append(animateLight);
 
   }
+
   //car
   {
     let texture = createImage2DTexture(resources.metaltexture);
@@ -412,6 +413,7 @@ function createSceneGraph(gl, resources) {
     root.append(new TransformationSGNode(glm.transform({ translate: [-50,-1.5,-50]}), randomIce));
 
   }
+
   //tree
   {
     let treeTexture = createImage2DTexture(resources.palmtexture);

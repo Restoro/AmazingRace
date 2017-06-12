@@ -23,25 +23,28 @@ struct Light {
 	vec4 specular;
 };
 
+struct SpotLight {
+	Light light;
+	vec3 spotDirection;
+	float spotCosineCutoff;
+	float spotExponent;
+};
+
 uniform Material u_material;
 uniform Light u_light;
 uniform Light u_light2;
+uniform SpotLight u_spotLight;
 
 //varying vectors for light computation
 varying vec3 v_normalVec;
 varying vec3 v_eyeVec;
 varying vec3 v_lightVec;
 varying vec3 v_light2Vec;
+varying vec3 v_spotLightVec;
 
 uniform bool u_enableObjectTexture;
 
 varying vec2 v_texCoord;
-
-varying vec4 v_ambient;
-varying	vec4 v_diffuse;
-varying	vec4 v_specular;
-varying	vec4 v_emission;
-varying	float v_shininess;
 
 uniform sampler2D u_tex;
 
@@ -49,8 +52,6 @@ vec4 calculateSimplePointLight(Light light, Material material, vec3 lightVec, ve
 	lightVec = normalize(lightVec);
 	normalVec = normalize(normalVec);
 	eyeVec = normalize(eyeVec);
-
-	Material materialV = Material(v_ambient, v_diffuse, v_specular, v_emission, v_shininess);
 
 		//TASK 1-1 implement phong shader
 	//compute diffuse term
