@@ -20,8 +20,8 @@ function init(resources) {
   gl = createContext(canvasWidth, canvasHeight);
 
   gl.enable(gl.BLEND);
-  //gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
   gl.enable(gl.DEPTH_TEST);
   initSkybox(resources,gl);
@@ -65,6 +65,23 @@ function createSceneGraph(gl, resources) {
     ]);
   }
 
+  //spotlight
+  {
+    let spotLight = new SpotLightSGNode();
+    spotLight.dir = [0.7,-1,0];
+    spotLight.cosineCutoff = 30;
+    spotLight.exponent = 10.0;
+    let translateLight = new TransformationSGNode(glm.transform({translate: [0.5,7,0]}), spotLight);
+
+    let streetLampTexture = createImage2DTexture(resources.streetlamptexture);
+    let streetLampTransform = new TransformationSGNode(glm.transform({translate: [0,0,0], scale:0.05}));
+    let streetLamp = new MaterialSGNode(new TextureSGNode(streetLampTexture,0,new RenderSGNode(resources.streetlampmodel)));
+    setMaterialParameter(streetLamp, [0.5,0.5,0.5,1], [0.5,0.5,0.5,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 0.4);
+    streetLampTransform.append(streetLamp);
+    let fullStreetLamp = new TransformationSGNode(glm.transform({translate: [0,-1.5,-45], rotateY:270}), [streetLampTransform, translateLight]);
+    root.append(fullStreetLamp);
+  }
+
   //floor
   {
     let floorTexture = createImage2DTexture(resources.floortexture);
@@ -72,7 +89,7 @@ function createSceneGraph(gl, resources) {
               new TextureSGNode(floorTexture,0,
                 new RenderSGNode(makeRect(25, 25))
               ));
-    setMaterialParameter(floor,  [0, 0, 0, 1], [0.1, 0.1, 0.1, 1], [0.0, 0.0, 0.0, 1], [0,0,0,1], 50.0);
+    setMaterialParameter(floor,  [1, 1, 1, 1], [1, 1, 1, 1], [0.0, 0.0, 0.0, 1], [0,0,0,1], 50.0);
     root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 2}), [
       floor
     ]));
@@ -82,8 +99,8 @@ function createSceneGraph(gl, resources) {
   {
     //initialize light
     sunLight = new LightSGNode(); //use now framework implementation of light node
-    sunLight.ambient = [0.8, 0.8, 0.8, 1];
-    sunLight.diffuse = [0.6, 0.6, 0.6, 1];
+    sunLight.ambient = [0.5, 0.5, 0.5, 1];
+    sunLight.diffuse = [1, 1, 1, 1];
     sunLight.specular = [1, 1, 1, 1];
     sunLight.position = [0, 0, 0];
 
@@ -127,7 +144,7 @@ function createSceneGraph(gl, resources) {
     let texture = createImage2DTexture(resources.metaltexture);
     let wheelTexture = createImage2DTexture(resources.wheeltexture);
 
-    let carNode = new TransformationSGNode(glm.transform({ translate: [0,-1,-34], scale:0.75, rotateY:90}));
+    let carNode = new TransformationSGNode(glm.transform({ translate: [0,-1,-33], scale:0.75, rotateY:90}));
     let carBodyFront = new MaterialSGNode([
         new RenderSGNode(Objects.makeCarBody(2,3,9.5))
       ]);
@@ -605,9 +622,6 @@ function render(timeInMilliseconds) {
 }
 
 
-
-
-
 //load the shader resources using a utility function
 loadResources({
   vs: 'shader/empty.vs.glsl',
@@ -630,6 +644,8 @@ loadResources({
   beachballtexture: 'models/beachballTexture.jpg',
   woodfencetexture: 'models/woodFence.png',
   sharkshieldtexture: 'models/sharkShield.png',
+  streetlampmodel: 'models/streetlamp.obj',
+  streetlamptexture: 'models/lampMetal.jpg',
 
 
 /*
