@@ -37,11 +37,18 @@ function initSkybox(resources, gl) {
 }
 
 function initCamera() {
-  camera = new Camera(true, vec3.fromValues(0,0,0), 90, 0);
-  camera.addNextPosition(vec3.fromValues(0,0,50), vec3.fromValues(1,0,0));
-  camera.addNextPosition(vec3.fromValues(0,0,0), vec3.fromValues(0,0,1));
-  camera.addNextPosition(vec3.fromValues(0,0,50), vec3.fromValues(-1,1,0));
-  camera.addNextPosition(vec3.fromValues(0,0,40), vec3.fromValues(0,0,-1));
+  camera = new Camera(true, vec3.fromValues(0,10,-30), 0, 0);
+  camera.addNextPosition(vec3.fromValues(35,10,-40), vec3.fromValues(30,0,30));
+  camera.addNextPosition(vec3.fromValues(50,10,-0), vec3.fromValues(20,0,20));
+  camera.addNextPosition(vec3.fromValues(40,10,40), vec3.fromValues(-40,0,40));
+  camera.addNextPosition(vec3.fromValues(-40,10,40), vec3.fromValues(-40,-10,-40));
+  camera.addNextPosition(vec3.fromValues(-40,10,60), vec3.fromValues(-40,0,40));
+  camera.addNextPosition(vec3.fromValues(-40,10,40), vec3.fromValues(-40,-10,-40));
+  camera.addNextPosition(vec3.fromValues(-40,10,-40), vec3.fromValues(40,0,-40));
+  //camera.addNextPosition(vec3.fromValues(25,10,-20), vec3.fromValues(1,-0.5,0.5));
+  //camera.addNextPosition(vec3.fromValues(30,10,-25), vec3.fromValues(1,-0.5,0.5));
+  //camera.addNextPosition(vec3.fromValues(35,10,-30), vec3.fromValues(1,-0.5,0.5));
+  //camera.addNextPosition(vec3.fromValues(35,10,-25), vec3.fromValues(1,-0.5,0.5));
 }
 
 function createSceneGraph(gl, resources) {
@@ -82,27 +89,13 @@ function createSceneGraph(gl, resources) {
     root.append(fullStreetLamp);
   }
 
-  //floor
-  {
-    let floorTexture = createImage2DTexture(resources.floortexture);
-    let floor = new MaterialSGNode(
-              new TextureSGNode(floorTexture,0,
-                new RenderSGNode(makeRect(25, 25))
-              ));
-    setMaterialParameter(floor,  [1, 1, 1, 1], [1, 1, 1, 1], [0.0, 0.0, 0.0, 1], [0,0,0,1], 50.0);
-    root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 2}), [
-      floor
-    ]));
-  }
-
-
   //sun
   {
     //initialize light
     sunLight = new LightSGNode(); //use now framework implementation of light node
     sunLight.ambient = [0.5, 0.5, 0.5, 1];
-    sunLight.diffuse = [1, 1, 1, 1];
-    sunLight.specular = [1, 1, 1, 1];
+    sunLight.diffuse = [0.6, 0.6, 0.6, 1];
+    sunLight.specular = [0, 0, 0, 1];
     sunLight.position = [0, 0, 0];
 
     let animateLight = new AnimationSGNode(mat4.create(), sunLight.position, camera, 1000, { rotateZ: 0.001});
@@ -122,8 +115,8 @@ function createSceneGraph(gl, resources) {
   {
     moonLight = new LightSGNode(); //use now framework implementation of light node
     moonLight.ambient = [0.2, 0.2, 0.2, 1];
-    moonLight.diffuse = [0.6, 0.6, 0.6, 1];
-    moonLight.specular = [1, 1, 1, 1];
+    moonLight.diffuse = [0.4, 0.4, 0.4, 1];
+    moonLight.specular = [0, 0, 0, 1];
     moonLight.position = [0, 0, 0];
     moonLight.uniform = 'u_light2';
 
@@ -145,7 +138,6 @@ function createSceneGraph(gl, resources) {
     let texture = createImage2DTexture(resources.metaltexture);
     let wheelTexture = createImage2DTexture(resources.wheeltexture);
 
-    let carNode = new TransformationSGNode(glm.transform({ translate: [0,-1,-33], scale:0.75, rotateY:90}));
     let carBodyFront = new MaterialSGNode([
         new RenderSGNode(Objects.makeCarBody(2,3,9.5))
       ]);
@@ -250,11 +242,12 @@ function createSceneGraph(gl, resources) {
     carInteriorTransform.append(carInterior);
     carBodyMiddleTransform.append(carInteriorTransform);
 
+    let carNode = new TransformationSGNode(glm.transform({ translate: [0,-1,-33], scale:0.75, rotateY:90}));
     carNode.append(new TextureSGNode(texture, 0, carBodyFront));
     carNode.append(carBodyBackTransform);
     carNode.append(carBodyMiddleTransform);
 
-    let carAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateY:-0.05}, [carNode]);
+    let carAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateY:-0.010}, [carNode]);
 
     root.append(carAnimation);
   }
@@ -328,13 +321,14 @@ function createSceneGraph(gl, resources) {
     let snowManArmLeftMaterial = new MaterialSGNode([new RenderSGNode(Objects.makeCube(0.3))]);
     setMaterialParameter(snowManArmLeftMaterial, [0.45,0.27,0.07,1],[0.45,0.27,0.07,1],[0.0, 0.0, 0.0, 1], [0,0,0,1], 1);
     let snowManArmLeft = new TransformationSGNode(glm.transform({ translate: [-0.65,0,0], scale:[1,0.2,0.2]}), [snowManArmLeftMaterial]);
-    let snowManArmLeftAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,20,0]}, snowManArmLeft);
+
 
     let snowManArmRightMaterial = new MaterialSGNode([new RenderSGNode(Objects.makeCube(0.3))]);
     setMaterialParameter(snowManArmRightMaterial, [0.45,0.27,0.07,1],[0.45,0.27,0.07,1],[0.0, 0.0, 0.0, 1], [0,0,0,1], 1);
     let snowManArmRight = new TransformationSGNode(glm.transform({ translate: [0.65,0,0], scale:[1,0.2,0.2]}), [snowManArmRightMaterial]);
-    let snowManArmRightAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,20,0]}, snowManArmRight);
 
+    let snowManArmRightAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,20,0]}, snowManArmRight);
+    let snowManArmLeftAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,20,0]}, snowManArmLeft);
     let snowManArms = new TransformationSGNode(glm.transform({ translate: [0,0.7,0]}), [snowManArmLeftAnimate, snowManArmRightAnimate]);
 
     snowManNode.append(snowManLow);
@@ -345,20 +339,40 @@ function createSceneGraph(gl, resources) {
     root.append(new TransformationSGNode(glm.transform({ translate: [-15,-1,-15]}), [
       snowManNodeAnimate
     ]));
+
+    let snowManNode2 = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
+    let snowManHighAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateXSin:[0.0015,150,0]}, snowManHigh);
+    snowManHighAnimate.maxDelta = 600;
+    snowManHighAnimate.reset = true;
+    let snowManMiddleAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[-0.0015,150,0]}, snowManMiddle);
+    snowManNode2.append(snowManHighAnimate);
+    snowManNode2.append(snowManMiddleAnimate);
+    snowManMiddleAnimate.maxDelta = 600;
+    snowManMiddleAnimate.reset = true;
+    snowManNode2.append(snowManLow);
+    root.append(new TransformationSGNode(glm.transform({ translate: [-20,-1,-20]}), [
+      snowManNode2
+    ]));
+
   }
 
   //beachballs
   {
     let beachBallNode = new TransformationSGNode(glm.transform({ translate: [0,1,0], scale:1.0}));
-    let beachBallNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, {rotateXSin:[0.005,100,0]}, [beachBallNode]);
+
 
     let beachBallTexture = createImage2DTexture(resources.beachballtexture);
     let beachBall = new TextureSGNode(beachBallTexture,0,new RenderSGNode(makeSphere(0.4)));
     beachBallNode.append(beachBall);
 
-    root.append(new TransformationSGNode(glm.transform({ translate: [-35,-1,20]}), [beachBallNodeAnimate]));
-    root.append(new TransformationSGNode(glm.transform({ translate: [-33,1.5,0], rotateY:90, scale:5}), [beachBallNodeAnimate]));
-    root.append(new TransformationSGNode(glm.transform({ translate: [-12,0,17], rotateY:30, scale:2.5}), [beachBallNodeAnimate]));
+    let beachBallNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, {translate: [0.005,0,0], rotateZ:-0.20}, [beachBall]);
+    beachBallNodeAnimate.maxDelta = 5000;
+    beachBallNodeAnimate.reset = true;
+    root.append(new TransformationSGNode(glm.transform({ translate: [-35,-1,22.5]}), [beachBallNodeAnimate]));
+    let beachBallNodeAnimate2 = new AnimationSGNode(mat4.create(), [0,0,0], camera, 70, {rotateXSin:[0.005,100,0]}, [beachBallNode]);
+    root.append(new TransformationSGNode(glm.transform({ translate: [-33,1.5,0], rotateY:90, scale:5}), [beachBallNodeAnimate2]));
+    let beachBallNodeAnimate3 = new AnimationSGNode(mat4.create(), [0,0,0], camera, 70, {rotateXSin:[0.005,100,0]}, [beachBallNode]);
+    root.append(new TransformationSGNode(glm.transform({ translate: [-12,0,17], rotateY:30, scale:2.5}), [beachBallNodeAnimate3]));
 
   }
 
@@ -401,10 +415,6 @@ function createSceneGraph(gl, resources) {
     fullFence.append(fenceY);
     root.append(fullFence);
     root.append(wholeSharkShield);
-
-
-
-
   }
 
   //icespikes
@@ -572,8 +582,10 @@ function initInteraction(canvas) {
     };
   }
   canvas.addEventListener('mousedown', function(event) {
-    mouse.pos = toPos(event);
-    mouse.leftButtonDown = event.button === 0;
+    if(camera.enable) {
+      mouse.pos = toPos(event);
+      mouse.leftButtonDown = event.button === 0;
+    }
   });
   canvas.addEventListener('mousemove', function(event) {
     const pos = toPos(event);

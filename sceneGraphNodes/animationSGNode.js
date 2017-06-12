@@ -10,6 +10,8 @@ class AnimationSGNode extends TransformationSGNode{
     this.functionParameter = functionParameter;
     this._worldPosition = position;
     this.time = 0;
+    this.maxDelta = 9007199254740991; //Highest number in Javascript
+    this.reset = false;
   }
 
   render(context) {
@@ -25,7 +27,6 @@ class AnimationSGNode extends TransformationSGNode{
       } else if(this.functionParameter.treeRotate){
           let view = context.viewMatrix;
           let billboard = mat4.create();
-
           billboard[0] = view[0];
           billboard[1] = view[4];
           billboard[2] = view[8];
@@ -44,7 +45,7 @@ class AnimationSGNode extends TransformationSGNode{
           billboard[15] = 1.0;
 
         this.matrix = billboard;
-      }else{
+      }else if(this.time < this.maxDelta){
         this.matrix = glm.transform(this.addTimeToParameter(this.functionParameter));
         this.latestMatrix = this.matrix;
       }
@@ -53,7 +54,12 @@ class AnimationSGNode extends TransformationSGNode{
         this.checkIfTimeIsSet();
         this.timeInMilliseconds = this.time;
       } else {
-        this.matrix = this.latestMatrix;
+        if(!this.reset) {
+          this.matrix = this.latestMatrix;
+        } else {
+          this.matrix =this.originalMatrix;
+          this.time = 0;
+        }
       }
     }
     super.render(context);
@@ -81,7 +87,6 @@ class AnimationSGNode extends TransformationSGNode{
 
     if (transform.translate) {
       newTransform.translate = [transform.translate[0] * this.time, transform.translate[1] * this.time, transform.translate[2] * this.time];
-      //console.log(newTransform.translate);
     }
     if (transform.rotateX) {
       newTransform.rotateX = (transform.rotateX * this.time);
@@ -102,12 +107,6 @@ class AnimationSGNode extends TransformationSGNode{
     if (transform.rotateZSin) {
       newTransform.rotateZ = Math.sin(transform.rotateZSin[0] * this.time) * transform.rotateZSin[1] + transform.rotateZSin[2];
     }
-    //Scale not working
-    /*
-    if (transform.scale) {
-      newTransform.scale = typeof transform.scale === 'number' ?  [transform.scale *this.time, transform.scale * this.time, transform.scale * this.time]: transform.scale * this.time;
-      console.log(newTransform.scale);
-    }*/
     return newTransform;
   }
 }

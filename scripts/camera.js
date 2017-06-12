@@ -24,10 +24,11 @@ class Camera {
     this.rotateSens = 0.25;
     this.moveSens = 0.25;
     //Used for regulating camera path movement speed
-    this.movePathSens = 0.0050;
+    this.movePathSens = 0.0025;
 
     //This variable is used for switchting between path and freecam
     this.enable = enableCam;
+    this.computeViewMatrix();
   }
 
   addNextPosition(position, lookat) {
@@ -38,16 +39,21 @@ class Camera {
     return this.positionLookQueue.shift();
   }
 
+  peekNextPosition() {
+    return this.positionLookQueue[0];
+  }
+
   generateMoveVec() {
     this.nextLookAndPos = this.getNextPosition();
     if(this.nextLookAndPos != undefined) {
       this.currentMoveVec = vec3.subtract(vec3.create(), this.nextLookAndPos.position, this.position);
+      console.log(this.nextLookAndPos.lookAt);
       this.currentLookMoveVec = this.nextLookAndPos.lookAt;
       this.setRotateDirection();
     } else {
       //No more Position to move to
-      this.nextLookAndPos = vec2.fromValues(this.position,this.lookAt);
-      this.currentMoveVec = vec3.fromValues(0,0,0);
+      //this.nextLookAndPos = vec2.fromValues(this.position,this.lookAt);
+      //this.currentMoveVec = vec3.fromValues(0,0,0);
       this.currentLookMoveVec = this.lookAt;
       //Enable Freecam
       this.enable = true;
@@ -55,10 +61,14 @@ class Camera {
   }
 
   setRotateDirection() {
-    let targetAngle = vec3.angle(vec3.fromValues(1,0,0), this.currentLookMoveVec) * 180/Math.PI;
-    let currentAngle = vec3.angle(vec3.fromValues(1,0,0), this.lookAt) * 180/Math.PI;
-    let delta = targetAngle - currentAngle +180;
-    if(delta <= 180) {
+    console.log(this.lookAt);
+    let perpendicular1 = vec3.fromValues(-this.lookAt[2], this.lookAt[1], this.lookAt[0]);
+    let perpendicular2 = vec3.fromValues(this.lookAt[2], this.lookAt[1], -this.lookAt[0]);
+    let perpen1Angle = vec3.angle(perpendicular1, this.currentLookMoveVec);
+    let perpen2Angle = vec3.angle(perpendicular2, this.currentLookMoveVec);
+    console.log(perpendicular1 + " " + perpen1Angle);
+    console.log(perpendicular2 + " " + perpen2Angle);
+    if(perpen1Angle < perpen2Angle) {
       this.circular = true;
     } else {
       this.circular = false;
@@ -99,29 +109,10 @@ class Camera {
     if(!this.enable) {
       //TODO
       //Maybe change this with fixed offset to stand still
-      //console.log("X Lookat:" + this.lookAt[0] + " X Target" + this.currentLookMoveVec[0]);
+      this.setRotateDirection();
+      console.log("X Lookat:" + this.lookAt[0] + " X Target" + this.currentLookMoveVec[0]);
       let angle = vec3.angle(this.lookAt, this.currentLookMoveVec);
       if(!this.compareVec3(this.lookAt, this.currentLookMoveVec, 0.1)) {
-        let normalLookAt = vec3.normalize(vec3.create(), this.lookAt);
-        let normalLookMoveVec = vec3.normalize(vec3.create(), this.currentLookMoveVec);
-
-        let deltaVec = vec3.subtract(vec3.create(), this.currentLookMoveVec,  this.lookAt);
-        console.log("Diff vector: X:" + deltaVec[0] + " " + deltaVec[1] + " " + deltaVec[2]);
-        deltaVec = vec3.normalize(vec3.create(), deltaVec);
-        let yawAni = Math.atan2(deltaVec[2], deltaVec[0]);
-        let zw = Math.sqrt(Math.pow(deltaVec[0], 2) + Math.pow(deltaVec[2],2));
-
-        let pitchAni = Math.atan2(zw,deltaVec[1]);
-      //  console.log(this.lookAt);
-      //  console.log(pitchAni);
-        console.log(yawAni * 180/Math.PI);
-        //console.log("X Lookat:" + this.lookAt[0] + " X Target" + this.currentLookMoveVec[0]);
-        //console.log("Z Lookat:" + this.lookAt[2] + " Z Target" + this.currentLookMoveVec[2]);
-        //let normalLookAt = vec2.normalize(vec2.create(), this.createVec2FromVec3(this.lookAt));
-        //let normalLookMoveVec = vec2.normalize(vec2.create(), this.createVec2FromVec3(this.currentLookMoveVec));
-        //let angle = Math.acos(vec2.dot(normalLookAt, normalLookMoveVec));
-
-        //console.log(angle);
         if(this.circular) {
           this.rotation.x -= angle;
         } else {
@@ -144,10 +135,19 @@ class Camera {
 
     let rotationVec = vec3.fromValues(Math.cos(pitch) * Math.cos(yaw),Math.sin(pitch),Math.cos(pitch) * Math.sin(yaw));
     let lookAt = vec3.normalize(vec3.create(), rotationVec);
-    this.lookAt = lookAt;
 
-    let lookAtMatrix = mat4.lookAt(mat4.create(), this.position, vec3.add(vec3.create(), this.position, this.lookAt), [0,1,0]);
-    return lookAtMatrix;
+    if(this.enable) {
+      this.lookAt = lookAt;
+      let lookAtMatrix = mat4.lookAt(mat4.create(), this.position, vec3.add(vec3.create(), this.position, this.lookAt), [0,1,0]);
+      return lookAtMatrix;
+    }else {
+      this.lookAt = this.currentLookMoveVec
+      let lookAtMatrix = mat4.lookAt(mat4.create(), this.position, this.lookAt, [0,1,0]);
+      return lookAtMatrix;
+    }
+
+    //let lookAtMatrix = mat4.lookAt(mat4.create(), this.position, vec3.add(vec3.create(), this.position, this.lookAt), [0,1,0]);
+
   }
 
   proccessMovement(keys) {
@@ -167,7 +167,7 @@ class Camera {
     } else {
       if(this.nextLookAndPos.position == undefined) {
         this.generateMoveVec();
-      } else if(this.compareVec3(this.position, this.nextLookAndPos.position, 0.001)) {
+      } else if(this.compareVec3(this.position, this.nextLookAndPos.position, this.movePathSens)) {
         this.generateMoveVec();
       }
       this.position = vec3.add(vec3.create(), this.position, vec3.scale(vec3.create(), this.currentMoveVec, this.movePathSens));
