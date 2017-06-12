@@ -65,18 +65,7 @@ function createSceneGraph(gl, resources) {
     ]);
   }
 
-    //floor
-  {
-    let floorTexture = createImage2DTexture(resources.floortexture);
-    let floor = new MaterialSGNode(
-              new TextureSGNode(floorTexture,0,
-                new RenderSGNode(makeRect(25, 25))
-              ));
-    setMaterialParameter(floor,  [0, 0, 0, 1], [0.1, 0.1, 0.1, 1], [0.0, 0.0, 0.0, 1], [0,0,0,1], 50.0);
-    root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 2}), [
-      floor
-    ]));
-  }
+
 
   //sun
   {
@@ -271,11 +260,23 @@ function createSceneGraph(gl, resources) {
     poolObject.append(waterShader);
     poolObject.append(poolEdgeObject);
 
-    let completePool = new TransformationSGNode(glm.transform({ translate: [-40,1,40], scale:0.5}), [poolObject]);
+    let completePool = new TransformationSGNode(glm.transform({ translate: [-35,-1,35], scale:0.81}), [poolObject]);
     root.append(completePool);
 
   }
 
+  //floor
+{
+  let floorTexture = createImage2DTexture(resources.floortexture);
+  let floor = new MaterialSGNode(
+            new TextureSGNode(floorTexture,0,
+              new RenderSGNode(makeRect(25, 25))
+            ));
+  setMaterialParameter(floor,[0,0,0,0] ,[0,0,0,0] , [0.0, 0.0, 0.0, 1], [0,0,0,0], 50.0);
+  root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 2}), [
+    floor
+  ]));
+}
   //snowman
   {
     let snowManNode = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
@@ -419,11 +420,12 @@ function createSceneGraph(gl, resources) {
               new TextureSGNode(treeTexture,0,
                 new RenderSGNode(makeTree())
               ));
+    setMaterialParameter(tree,[0,0,0,0] , [0,0,0,0],[0.0, 0.0, 0.0, 0],[0,0,0,0],50.0 );
     //tree.ambient = [0, 0, 0, 0.5]; - not used because texture
     //tree.diffuse = [0.1, 0.1, 0.1, 0.5]; - not used because texture
-    tree.specular = [0.0, 0.0, 0.0, 0];
-    tree.emission = [0,0,0,0];
-    tree.shininess = 50.0;
+  //  tree.specular = [0.0, 0.0, 0.0, 0];
+  //  tree.emission = [0,0,0,0];
+  //  tree.shininess = 50.0;
 
     let treeAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, { treeRotate:tree});
     treeAnimation.append(tree);
@@ -615,7 +617,7 @@ loadResources({
   materialvs: 'shader/material.vs.glsl',
   materialfs: 'shader/material.fs.glsl',
   treetexture:'models/tree1.png',
-  floortexture: 'models/ffloor.png',
+  floortexture: 'models/floorhole.png',
   suntexture: 'models/sun.jpg',
   moontexture: 'models/moon.jpg',
   pooltexture: 'models/poolMosaic.jpg',
