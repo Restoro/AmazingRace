@@ -301,6 +301,68 @@ function createSceneGraph(gl, resources) {
   ]));
 }
 
+//dragon
+  {
+    let dragonNode = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
+    let dragonNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, {rotateY:0.0}, [dragonNode]);
+
+    //feet
+    let dragonleftfootMaterial  = new MaterialSGNode([new RenderSGNode(Objects.makeCube(0.2))]);
+    setMaterialParameter(dragonleftfootMaterial,[0.05,0.2,0.0,1],[0.1,0.1,0.1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
+    let dragonleftfoot = new TransformationSGNode(glm.transform({ translate: [0,0,0], scale:1.0}), [dragonleftfootMaterial]);
+    let dragonLeftFootAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,-20,0]}, dragonleftfoot);
+
+    let dragonrightfootMaterial  = new MaterialSGNode([new RenderSGNode(Objects.makeCube(0.2))]);
+    setMaterialParameter(dragonrightfootMaterial, [0.05,0.2,0.0,1],[0.1,0.1,0.1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
+    let dragonrightfoot = new TransformationSGNode(glm.transform({ translate: [0,0,0.8], scale:1.0}), [dragonrightfootMaterial]);
+    let dragonRightFootAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,20,0]}, dragonrightfoot);
+    let dragonFeet = new TransformationSGNode(glm.transform({ translate: [0,0.5,0]}), [dragonLeftFootAnimate, dragonRightFootAnimate]);
+
+    //eyes
+    let eyeTexture = createImage2DTexture(resources.eyetexture);
+
+    let dragonlefteyeMaterial  = new TextureSGNode(eyeTexture,0,new RenderSGNode(makeSphere(0.15)));
+    let dragonlefteye = new TransformationSGNode(glm.transform({ translate: [0,0,0], rotateY: -50, scale:1.0}), [dragonlefteyeMaterial]);
+
+    let dragonrighteyeMaterial  = new TextureSGNode(eyeTexture,0,new RenderSGNode(makeSphere(0.15)));
+    let dragonrighteye = new TransformationSGNode(glm.transform({ translate: [0,0,0.6],rotateY: -55, scale:1.0}), [dragonrighteyeMaterial]);
+    let dragonEyes = new TransformationSGNode(glm.transform({ translate: [0.6,1.2,0.1]}), [dragonlefteye, dragonrighteye]);
+
+    //body
+    let dragonbodyMaterial = new MaterialSGNode([new RenderSGNode(Objects.makeCube(0.6))]);
+    setMaterialParameter(dragonbodyMaterial, [0.05,0.2,0.0,1],[0.1,0.1,0.1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
+    let dragonbody = new TransformationSGNode(glm.transform({ translate: [0,1.17,0.4], scale:1.0}), [dragonbodyMaterial]);
+
+    let dragonspikeMaterial = new MaterialSGNode([new RenderSGNode(makeRect(0.2,0.2))]);
+    setMaterialParameter(dragonspikeMaterial, [0.6,0.0,0.0,1],[0.1,0.1,0.1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
+    let dragonspike1 = new TransformationSGNode(glm.transform({ translate: [-0.3,1.75,0.4], rotateZ:60, scale:1.1}), [dragonspikeMaterial]);
+    let dragonspike2 = new TransformationSGNode(glm.transform({ translate: [0.25,1.75,0.4], rotateZ:45, scale:1.1}), [dragonspikeMaterial]);
+    let dragonspike3 = new TransformationSGNode(glm.transform({ translate: [-0.55,1.45,0.4], rotateZ:45, scale:1.1}), [dragonspikeMaterial]);
+    let dragonspike4 = new TransformationSGNode(glm.transform({ translate: [-0.55,0.95,0.4], rotateZ:60, scale:1.3}), [dragonspikeMaterial]);
+    let dragonSpikes = new TransformationSGNode(glm.transform({ translate: [0,0,0]}), [dragonspike1,dragonspike2,dragonspike3,dragonspike4]);
+
+    //wings
+    let dragonwingMaterial  = new MaterialSGNode([new RenderSGNode(makeRect(0.2,0.7))]);
+    setMaterialParameter(dragonwingMaterial, [0.6,0.0,0.0,1],[0.1,0.1,0.1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
+    let dragonrightwing = new TransformationSGNode(glm.transform({ translate: [-0.5,0,0.8],rotateZ: 10,rotateY: 10,rotateX:90, scale:1.0}), [dragonwingMaterial]);
+    let dragonrightWingAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateXSin:[0.02,10,0]}, dragonrightwing);
+    let dragonleftwing = new TransformationSGNode(glm.transform({ translate: [-0.5,0,-0.3],rotateZ: 10,rotateY: 10,rotateX:90, scale:1.0}), [dragonwingMaterial]);
+    let dragonleftWingAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateXSin:[-0.02,10,0]}, dragonleftwing);
+    let dragonWings = new TransformationSGNode(glm.transform({ translate: [0.6,1.2,0.1]}), [dragonleftWingAnimate, dragonrightWingAnimate]);
+
+    let dragon = new TransformationSGNode(glm.transform({ translate: [40,2,20], rotateY:160, scale:3.0}), [dragonbody,dragonFeet,dragonEyes,dragonSpikes,dragonWings]);
+    let dragonAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 3000, { rotateZSin:[-0.005,1,0]}, dragon);
+
+  //  dragonNode.append(dragoneyes);
+  //  dragonNode.append(dragonFeet);
+    dragonNode.append(dragonAnimate);
+
+
+    root.append(new TransformationSGNode(glm.transform({ translate: [-4,-1,-7]}), [
+      dragonNodeAnimate
+    ]));
+  }
+
   //snowman
   {
     let snowManNode = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
@@ -359,7 +421,6 @@ function createSceneGraph(gl, resources) {
   //beachballs
   {
     let beachBallNode = new TransformationSGNode(glm.transform({ translate: [0,1,0], scale:1.0}));
-
 
     let beachBallTexture = createImage2DTexture(resources.beachballtexture);
     let beachBall = new TextureSGNode(beachBallTexture,0,new RenderSGNode(makeSphere(0.4)));
@@ -583,8 +644,8 @@ function initInteraction(canvas) {
   }
   canvas.addEventListener('mousedown', function(event) {
     if(camera.enable) {
-      mouse.pos = toPos(event);
-      mouse.leftButtonDown = event.button === 0;
+    mouse.pos = toPos(event);
+    mouse.leftButtonDown = event.button === 0;
     }
   });
   canvas.addEventListener('mousemove', function(event) {
@@ -708,6 +769,8 @@ loadResources({
   firtexture: 'models/fir.png',
   streetlampmodel: 'models/streetlamp.obj',
   streetlamptexture: 'models/lampMetal.jpg',
+  eyetexture: 'models/eye.png',
+  wingtexture:'models/wing.png',
 
 
 /*
