@@ -97,7 +97,8 @@ function createSceneGraph(gl, resources) {
   }
 =======
 
->>>>>>> 390ca36fe46b3e3aca37c69ed0198861a040ab71
+>>>>>>> 9af59f8e78b50940e6a7bfddd74031a0c62aca31
+
 
   //sun
   {
@@ -310,6 +311,10 @@ function createSceneGraph(gl, resources) {
     floor
   ]));
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9af59f8e78b50940e6a7bfddd74031a0c62aca31
   //snowman
   {
     let snowManNode = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
@@ -695,12 +700,12 @@ loadResources({
   beachballtexture: 'models/beachballTexture.jpg',
   woodfencetexture: 'models/woodFence.png',
   sharkshieldtexture: 'models/sharkShield.png',
+  firtexture: 'models/fir.png',
 <<<<<<< HEAD
   streetlampmodel: 'models/streetlamp.obj',
   streetlamptexture: 'models/lampMetal.jpg',
 =======
-  firtexture: 'models/fir.png',
->>>>>>> 390ca36fe46b3e3aca37c69ed0198861a040ab71
+>>>>>>> 9af59f8e78b50940e6a7bfddd74031a0c62aca31
 
 
 /*

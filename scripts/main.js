@@ -307,6 +307,7 @@ function createSceneGraph(gl, resources) {
     floor
   ]));
 }
+
   //snowman
   {
     let snowManNode = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
