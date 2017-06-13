@@ -758,7 +758,7 @@ loadResources({
   pooltexture: 'models/poolMosaic.jpg',
   palmtexture: 'models/Palme.png',
   woodtexture: 'models/woodTexture.jpg',
-  icetexture: 'models/IceTexture.jpg',
+  icetexture: 'models/icetexture.jpg',
   poolladdermodel: 'models/poolladder.obj',
   metaltexture: 'models/metalTexture.jpg',
   wheeltexture: 'models/wheelTexture.jpg',

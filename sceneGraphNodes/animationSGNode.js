@@ -25,26 +25,7 @@ class AnimationSGNode extends TransformationSGNode{
       if(this.functionParameter.waterWave) {
         this.functionParameter.waterWave.timeInMilliseconds = this.time;
       } else if(this.functionParameter.treeRotate){
-          let view = context.viewMatrix;
-          let billboard = mat4.create();
-          billboard[0] = view[0];
-          billboard[1] = view[4];
-          billboard[2] = view[8];
-          billboard[3] = this.position[0];
-          billboard[4] = view[1];
-          billboard[5] = view[5];
-          billboard[6] = view[9];
-          billboard[7] = this.position[1];
-          billboard[8] = view[2];
-          billboard[9] = view[6];
-          billboard[10] = view[10];
-          billboard[11] = this.position[2];
-          billboard[12] = 0.0;
-          billboard[13] = 0.0;
-          billboard[14] = 0.0;
-          billboard[15] = 1.0;
-
-        this.matrix = billboard;
+          this.matrix = this.creatBillboardMatrix(context.viewMatrix);
       }else if(this.time < this.maxDelta){
         this.matrix = glm.transform(this.addTimeToParameter(this.functionParameter));
         this.latestMatrix = this.matrix;
@@ -108,5 +89,26 @@ class AnimationSGNode extends TransformationSGNode{
       newTransform.rotateZ = Math.sin(transform.rotateZSin[0] * this.time) * transform.rotateZSin[1] + transform.rotateZSin[2];
     }
     return newTransform;
+  }
+
+  creatBillboardMatrix(view){
+    let billboard = mat4.create();
+    billboard[0] = view[0];
+//    billboard[1] = view[4];
+    billboard[2] = view[8];
+    billboard[3] = this.position[0];
+  //  billboard[4] = view[1];
+  //  billboard[5] = view[5];
+  //  billboard[6] = view[9];
+    billboard[7] = this.position[1];
+    billboard[8] = view[2];
+  //c  billboard[9] = view[6];
+    billboard[10] = view[10];
+    billboard[11] = this.position[2];
+    billboard[12] = 0.0;
+    billboard[13] = 0.0;
+    billboard[14] = 0.0;
+    billboard[15] = 1.0;
+    return billboard;
   }
 }
