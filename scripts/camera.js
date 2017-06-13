@@ -24,10 +24,12 @@ class Camera {
     this.rotateSens = 0.25;
     this.moveSens = 0.25;
     //Used for regulating camera path movement speed
-    this.movePathSens = 0.0025;
+    this.movePathSens = 0.004;
 
     //This variable is used for switchting between path and freecam
     this.enable = enableCam;
+
+    this.maxTime = 30000;
     this.computeViewMatrix();
   }
 
@@ -47,7 +49,7 @@ class Camera {
     this.nextLookAndPos = this.getNextPosition();
     if(this.nextLookAndPos != undefined) {
       this.currentMoveVec = vec3.subtract(vec3.create(), this.nextLookAndPos.position, this.position);
-      console.log(this.nextLookAndPos.lookAt);
+      //console.log(this.nextLookAndPos.lookAt);
       this.currentLookMoveVec = this.nextLookAndPos.lookAt;
       this.setRotateDirection();
     } else {
@@ -61,13 +63,13 @@ class Camera {
   }
 
   setRotateDirection() {
-    console.log(this.lookAt);
+    //console.log(this.lookAt);
     let perpendicular1 = vec3.fromValues(-this.lookAt[2], this.lookAt[1], this.lookAt[0]);
     let perpendicular2 = vec3.fromValues(this.lookAt[2], this.lookAt[1], -this.lookAt[0]);
     let perpen1Angle = vec3.angle(perpendicular1, this.currentLookMoveVec);
     let perpen2Angle = vec3.angle(perpendicular2, this.currentLookMoveVec);
-    console.log(perpendicular1 + " " + perpen1Angle);
-    console.log(perpendicular2 + " " + perpen2Angle);
+    //console.log(perpendicular1 + " " + perpen1Angle);
+    //console.log(perpendicular2 + " " + perpen2Angle);
     if(perpen1Angle < perpen2Angle) {
       this.circular = true;
     } else {
@@ -110,7 +112,7 @@ class Camera {
       //TODO
       //Maybe change this with fixed offset to stand still
       this.setRotateDirection();
-      console.log("X Lookat:" + this.lookAt[0] + " X Target" + this.currentLookMoveVec[0]);
+      //console.log("X Lookat:" + this.lookAt[0] + " X Target" + this.currentLookMoveVec[0]);
       let angle = vec3.angle(this.lookAt, this.currentLookMoveVec);
       if(!this.compareVec3(this.lookAt, this.currentLookMoveVec, 0.1)) {
         if(this.circular) {
@@ -167,7 +169,7 @@ class Camera {
     } else {
       if(this.nextLookAndPos.position == undefined) {
         this.generateMoveVec();
-      } else if(this.compareVec3(this.position, this.nextLookAndPos.position, this.movePathSens)) {
+      } else if(this.compareVec3(this.position, this.nextLookAndPos.position, 0.1)) {
         this.generateMoveVec();
       }
       this.position = vec3.add(vec3.create(), this.position, vec3.scale(vec3.create(), this.currentMoveVec, this.movePathSens));

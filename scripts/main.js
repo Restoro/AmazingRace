@@ -37,18 +37,15 @@ function initSkybox(resources, gl) {
 }
 
 function initCamera() {
-  camera = new Camera(true, vec3.fromValues(0,10,-30), 0, 0);
-  camera.addNextPosition(vec3.fromValues(35,10,-40), vec3.fromValues(30,0,30));
-  camera.addNextPosition(vec3.fromValues(50,10,-0), vec3.fromValues(20,0,20));
-  camera.addNextPosition(vec3.fromValues(40,10,40), vec3.fromValues(-40,0,40));
-  camera.addNextPosition(vec3.fromValues(-40,10,40), vec3.fromValues(-40,-10,-40));
-  camera.addNextPosition(vec3.fromValues(-40,10,60), vec3.fromValues(-40,0,40));
-  camera.addNextPosition(vec3.fromValues(-40,10,40), vec3.fromValues(-40,-10,-40));
-  camera.addNextPosition(vec3.fromValues(-40,10,-40), vec3.fromValues(40,0,-40));
-  //camera.addNextPosition(vec3.fromValues(25,10,-20), vec3.fromValues(1,-0.5,0.5));
-  //camera.addNextPosition(vec3.fromValues(30,10,-25), vec3.fromValues(1,-0.5,0.5));
-  //camera.addNextPosition(vec3.fromValues(35,10,-30), vec3.fromValues(1,-0.5,0.5));
-  //camera.addNextPosition(vec3.fromValues(35,10,-25), vec3.fromValues(1,-0.5,0.5));
+  camera = new Camera(false, vec3.fromValues(10 ,10,-70), 0, 0);
+  camera.addNextPosition(vec3.fromValues(15,10,-60), vec3.fromValues(60,0,0));
+  camera.addNextPosition(vec3.fromValues(30,5,-10), vec3.fromValues(40,0,20));
+  camera.addNextPosition(vec3.fromValues(35,5,20), vec3.fromValues(0,-1.5,30));
+  camera.addNextPosition(vec3.fromValues(0,5,25), vec3.fromValues(-50,-1,5,40));
+  camera.addNextPosition(vec3.fromValues(-20,5,10), vec3.fromValues(-30,0,30));
+  //camera.addNextPosition(vec3.fromValues(0,5,0), vec3.fromValues(-30,0,30));
+  camera.addNextPosition(vec3.fromValues(-5,5,2), vec3.fromValues(-30,2.5,-30));
+  camera.addNextPosition(vec3.fromValues(-30,5,-10), vec3.fromValues(-10,2.5,-30));
 }
 
 function createSceneGraph(gl, resources) {
@@ -98,7 +95,7 @@ function createSceneGraph(gl, resources) {
     sunLight.specular = [0, 0, 0, 1];
     sunLight.position = [0, 0, 0];
 
-    let animateLight = new AnimationSGNode(mat4.create(), sunLight.position, camera, 1000, { rotateZ: 0.001});
+    let animateLight = new AnimationSGNode(mat4.create(), sunLight.position, camera, 1000, { rotateZ: 0.005});
     let translateLight = new TransformationSGNode(glm.transform({translate: [150,5,0]})); //translating the light is the same as setting the light position
     animateLight.append(translateLight);
     translateLight.append(sunLight);
@@ -120,7 +117,7 @@ function createSceneGraph(gl, resources) {
     moonLight.position = [0, 0, 0];
     moonLight.uniform = 'u_light2';
 
-    let animateLight = new AnimationSGNode(mat4.create(), moonLight.position, camera, 1000, { rotateZ: 0.001});
+    let animateLight = new AnimationSGNode(mat4.create(), moonLight.position, camera, 1000, { rotateZ: 0.005});
     let translateLight = new TransformationSGNode(glm.transform({translate: [-150,5,0]}));
     animateLight.append(translateLight);
     translateLight.append(moonLight);
@@ -247,9 +244,9 @@ function createSceneGraph(gl, resources) {
     carNode.append(carBodyBackTransform);
     carNode.append(carBodyMiddleTransform);
 
-    let carAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateY:-0.010}, [carNode]);
+    let carAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateY:-0.01125}, [carNode]);
 
-    root.append(carAnimation);
+    root.append(new TransformationSGNode(glm.transform({ translate: [0,0,-5]}), carAnimation));
   }
 
   //pool
@@ -268,7 +265,7 @@ function createSceneGraph(gl, resources) {
     let reflectWater = new EnvironmentSGNode(envcubetexture, 4, true);
     reflectWater.append(water);
 
-    waterShader.append(new TransformationSGNode(glm.transform({ translate: [-10,-0.7,-10], rotateX: 0, rotateY:0, scale: 0.20}), [
+    waterShader.append(new TransformationSGNode(glm.transform({ translate: [-10,-0.7,-9.975], rotateX: 0, rotateY:0, scale: 0.20175}), [
       reflectWater
     ]));
 
@@ -303,19 +300,17 @@ function createSceneGraph(gl, resources) {
 
 //dragon
   {
-    let dragonNode = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
-    let dragonNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, {rotateY:0.0}, [dragonNode]);
-
-    //feet
+    let animateRange = 75;
     let dragonleftfootMaterial  = new MaterialSGNode([new RenderSGNode(Objects.makeCube(0.2))]);
     setMaterialParameter(dragonleftfootMaterial,[0.05,0.2,0.0,1],[0.1,0.1,0.1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
     let dragonleftfoot = new TransformationSGNode(glm.transform({ translate: [0,0,0], scale:1.0}), [dragonleftfootMaterial]);
-    let dragonLeftFootAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,-20,0]}, dragonleftfoot);
-
+    let dragonLeftFootAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, { rotateZSin:[0.01,-20,0]}, dragonleftfoot);
+    dragonLeftFootAnimate.reset = true;
     let dragonrightfootMaterial  = new MaterialSGNode([new RenderSGNode(Objects.makeCube(0.2))]);
     setMaterialParameter(dragonrightfootMaterial, [0.05,0.2,0.0,1],[0.1,0.1,0.1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
     let dragonrightfoot = new TransformationSGNode(glm.transform({ translate: [0,0,0.8], scale:1.0}), [dragonrightfootMaterial]);
-    let dragonRightFootAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,20,0]}, dragonrightfoot);
+    let dragonRightFootAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, { rotateZSin:[0.01,20,0]}, dragonrightfoot);
+    dragonRightFootAnimate.reset = true;
     let dragonFeet = new TransformationSGNode(glm.transform({ translate: [0,0.5,0]}), [dragonLeftFootAnimate, dragonRightFootAnimate]);
 
     //eyes
@@ -344,29 +339,29 @@ function createSceneGraph(gl, resources) {
     //wings
     let dragonwingMaterial  = new MaterialSGNode([new RenderSGNode(makeRect(0.2,0.7))]);
     setMaterialParameter(dragonwingMaterial, [0.6,0.0,0.0,1],[0.1,0.1,0.1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
-    let dragonrightwing = new TransformationSGNode(glm.transform({ translate: [-0.5,0,0.8],rotateZ: 10,rotateY: 10,rotateX:90, scale:1.0}), [dragonwingMaterial]);
-    let dragonrightWingAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateXSin:[0.02,10,0]}, dragonrightwing);
-    let dragonleftwing = new TransformationSGNode(glm.transform({ translate: [-0.5,0,-0.3],rotateZ: 10,rotateY: 10,rotateX:90, scale:1.0}), [dragonwingMaterial]);
-    let dragonleftWingAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateXSin:[-0.02,10,0]}, dragonleftwing);
+    let dragonrightwing = new TransformationSGNode(glm.transform({ translate: [-0.5,0,0.8],rotateZ: 10,rotateY: 10,rotateX:90}), [dragonwingMaterial]);
+    let dragonrightWingAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, { rotateXSin:[0.02,10,0]}, dragonrightwing);
+    let dragonleftwing = new TransformationSGNode(glm.transform({ translate: [-0.5,0,-0.3],rotateZ: 10,rotateY: 10,rotateX:90}), [dragonwingMaterial]);
+    let dragonleftWingAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, { rotateXSin:[-0.02,10,0]}, dragonleftwing);
     let dragonWings = new TransformationSGNode(glm.transform({ translate: [0.6,1.2,0.1]}), [dragonleftWingAnimate, dragonrightWingAnimate]);
 
-    let dragon = new TransformationSGNode(glm.transform({ translate: [40,2,20], rotateY:160, scale:3.0}), [dragonbody,dragonFeet,dragonEyes,dragonSpikes,dragonWings]);
-    let dragonAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 3000, { rotateZSin:[-0.005,1,0]}, dragon);
-
-  //  dragonNode.append(dragoneyes);
-  //  dragonNode.append(dragonFeet);
-    dragonNode.append(dragonAnimate);
+    let dragon = new TransformationSGNode(glm.transform({ translate: [40,-1.5,20], rotateY:160, scale:3.0}), [dragonbody,dragonFeet,dragonEyes,dragonSpikes,dragonWings]);
+    let dragonAnimate = new AnimationSGNode(mat4.create(), [40,-1.5,20], camera, animateRange, { rotateZSin:[-0.005,1,0]}, dragon);
+    dragonAnimate.reset = true;
+    let dragonNodeStartFlying = new AnimationSGNode(mat4.create(), [40,-1.5,20], camera, animateRange, {translate:[0,0.005,0]}, dragonAnimate);
+    dragonNodeStartFlying.maxDelta = 500;
+    dragonNodeStartFlying.reset = true;
 
 
     root.append(new TransformationSGNode(glm.transform({ translate: [-4,-1,-7]}), [
-      dragonNodeAnimate
+      dragonNodeStartFlying
     ]));
   }
 
   //snowman
   {
     let snowManNode = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
-    let snowManNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, {rotateY:0.1}, [snowManNode]);
+    let snowManNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 33, {rotateY:0.1}, [snowManNode]);
 
     let snowManLowMaterial  = new MaterialSGNode([new RenderSGNode(makeSphere(0.5))]);
     setMaterialParameter(snowManLowMaterial, [0.9,0.9,1,1],[0.9,0.9,1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
@@ -389,8 +384,8 @@ function createSceneGraph(gl, resources) {
     setMaterialParameter(snowManArmRightMaterial, [0.45,0.27,0.07,1],[0.45,0.27,0.07,1],[0.0, 0.0, 0.0, 1], [0,0,0,1], 1);
     let snowManArmRight = new TransformationSGNode(glm.transform({ translate: [0.65,0,0], scale:[1,0.2,0.2]}), [snowManArmRightMaterial]);
 
-    let snowManArmRightAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,20,0]}, snowManArmRight);
-    let snowManArmLeftAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[0.01,20,0]}, snowManArmLeft);
+    let snowManArmRightAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 33, { rotateZSin:[0.01,20,0]}, snowManArmRight);
+    let snowManArmLeftAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 33, { rotateZSin:[0.01,20,0]}, snowManArmLeft);
     let snowManArms = new TransformationSGNode(glm.transform({ translate: [0,0.7,0]}), [snowManArmLeftAnimate, snowManArmRightAnimate]);
 
     snowManNode.append(snowManLow);
@@ -398,12 +393,12 @@ function createSceneGraph(gl, resources) {
     snowManNode.append(snowManHigh);
     snowManNode.append(snowManArms);
 
-    root.append(new TransformationSGNode(glm.transform({ translate: [-15,-1,-15]}), [
+    root.append(new TransformationSGNode(glm.transform({ translate: [-5, -1,-30]}), [
       snowManNodeAnimate
     ]));
 
     let snowManNode2 = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
-    let snowManHighAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateXSin:[0.0015,150,0]}, snowManHigh);
+    let snowManHighAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 31, { rotateXSin:[0.0015,150,0]}, snowManHigh);
     snowManHighAnimate.maxDelta = 600;
     snowManHighAnimate.reset = true;
     let snowManMiddleAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[-0.0015,150,0]}, snowManMiddle);
@@ -412,7 +407,7 @@ function createSceneGraph(gl, resources) {
     snowManMiddleAnimate.maxDelta = 600;
     snowManMiddleAnimate.reset = true;
     snowManNode2.append(snowManLow);
-    root.append(new TransformationSGNode(glm.transform({ translate: [-20,-1,-20]}), [
+    root.append(new TransformationSGNode(glm.transform({ translate: [-10,-1,-30]}), [
       snowManNode2
     ]));
 
@@ -430,9 +425,9 @@ function createSceneGraph(gl, resources) {
     beachBallNodeAnimate.maxDelta = 5000;
     beachBallNodeAnimate.reset = true;
     root.append(new TransformationSGNode(glm.transform({ translate: [-35,-1,22.5]}), [beachBallNodeAnimate]));
-    let beachBallNodeAnimate2 = new AnimationSGNode(mat4.create(), [0,0,0], camera, 70, {rotateXSin:[0.005,100,0]}, [beachBallNode]);
+    let beachBallNodeAnimate2 = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateXSin:[0.005,100,0]}, [beachBallNode]);
     root.append(new TransformationSGNode(glm.transform({ translate: [-33,1.5,0], rotateY:90, scale:5}), [beachBallNodeAnimate2]));
-    let beachBallNodeAnimate3 = new AnimationSGNode(mat4.create(), [0,0,0], camera, 70, {rotateXSin:[0.005,100,0]}, [beachBallNode]);
+    let beachBallNodeAnimate3 = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateXSin:[0.005,100,0]}, [beachBallNode]);
     root.append(new TransformationSGNode(glm.transform({ translate: [-12,0,17], rotateY:30, scale:2.5}), [beachBallNodeAnimate3]));
 
   }
@@ -540,7 +535,7 @@ function createSceneGraph(gl, resources) {
     root.append(new TransformationSGNode(glm.transform({ translate: [0,4.5,15], scale: 6}), [ treeAnimation]));
     root.append(new TransformationSGNode(glm.transform({ translate: [20,4.5,5], scale: 6}), [ treeAnimation]));
     root.append(new TransformationSGNode(glm.transform({ translate: [15,4.5,9], scale: 6}), [ treeAnimation]));
-    root.append(new TransformationSGNode(glm.transform({ translate: [30,4.5,-4], scale: 6}), [ treeAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [40,4.5,-4], scale: 6}), [ treeAnimation]));
     root.append(new TransformationSGNode(glm.transform({ translate: [20,4.5,45], scale: 6}), [ treeAnimation]));
     root.append(new TransformationSGNode(glm.transform({ translate: [35,4.5,35], scale: 6}), [ treeAnimation]));
     root.append(new TransformationSGNode(glm.transform({ translate: [15,4.5,35], scale: 6}), [ treeAnimation]));
@@ -678,6 +673,10 @@ function initInteraction(canvas) {
       case "ArrowRight": case "KeyD":
         keys["KeyD"] = false;
       break;
+      case "KeyC":
+      if(!camera.enable)
+        camera.enable = true;
+      break;
     }
   });
   document.addEventListener('keydown', function(event) {
@@ -782,22 +781,23 @@ loadResources({
   env_neg_z: 'skybox/debug/Blue.png'
 */
 
-/*
+
   env_pos_x: 'skybox/sky/skyposx1.png',
   env_neg_x: 'skybox/sky/skynegx1.png',
   env_pos_y: 'skybox/sky/skyposy1.png',
   env_neg_y: 'skybox/sky/skynegy1.png',
   env_pos_z: 'skybox/sky/skyposz1.png',
   env_neg_z: 'skybox/sky/skynegz1.png'
-*/
 
 
+/*
   env_pos_x: 'skybox/UnionSquare/posx.jpg',
   env_neg_x: 'skybox/UnionSquare/negx.jpg',
   env_pos_y: 'skybox/UnionSquare/posy.jpg',
   env_neg_y: 'skybox/UnionSquare/negy.jpg',
   env_pos_z: 'skybox/UnionSquare/posz.jpg',
-  env_neg_z: 'skybox/UnionSquare/negz.jpg'
+  env_neg_z: 'skybox/UnionSquare/negz.jpg',
+*/
 
 }).then(function (resources /*an object containing our keys with the loaded resources*/) {
   init(resources);
