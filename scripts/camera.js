@@ -24,7 +24,7 @@ class Camera {
     this.rotateSens = 0.25;
     this.moveSens = 0.25;
     //Used for regulating camera path movement speed
-    this.movePathSens = 0.004;
+    this.movePathSens = 0.000215;
 
     //This variable is used for switchting between path and freecam
     this.enable = enableCam;
@@ -108,29 +108,6 @@ class Camera {
   }
 
   computeViewMatrix() {
-    if(!this.enable) {
-      //TODO
-      //Maybe change this with fixed offset to stand still
-      this.setRotateDirection();
-      //console.log("X Lookat:" + this.lookAt[0] + " X Target" + this.currentLookMoveVec[0]);
-      let angle = vec3.angle(this.lookAt, this.currentLookMoveVec);
-      if(!this.compareVec3(this.lookAt, this.currentLookMoveVec, 0.1)) {
-        if(this.circular) {
-          this.rotation.x -= angle;
-        } else {
-          this.rotation.x += angle;
-        }
-      }
-
-      if(!(this.compareCoordinate(this.lookAt[1], this.currentLookMoveVec[1], 0.1))) {
-        //console.log("Y lookat:" + this.lookAt[1] + " Y Target:" + this.currentLookMoveVec[1]);
-        if(this.lookAt[1] < this.currentLookMoveVec[1]) {
-          this.rotation.y += angle;
-        } else {
-          this.rotation.y -= angle;
-        }
-      }
-    }
 
     let pitch = glMatrix.toRadian(this.rotation.y);
     let yaw = glMatrix.toRadian(-this.rotation.x);
@@ -152,7 +129,7 @@ class Camera {
 
   }
 
-  proccessMovement(keys) {
+  proccessMovement(keys, time) {
     if(this.enable) {
       if(keys["KeyW"] == true) {
         this.position = vec3.add(vec3.create(), this.position, vec3.scale(vec3.create(), this.lookAt, this.moveSens));
@@ -169,10 +146,11 @@ class Camera {
     } else {
       if(this.nextLookAndPos.position == undefined) {
         this.generateMoveVec();
-      } else if(this.compareVec3(this.position, this.nextLookAndPos.position, 0.1)) {
+      } else if(this.compareVec3(this.position, this.nextLookAndPos.position, 0.05*time)) {
         this.generateMoveVec();
       }
-      this.position = vec3.add(vec3.create(), this.position, vec3.scale(vec3.create(), this.currentMoveVec, this.movePathSens));
+      if(!isNaN(time))
+      this.position = vec3.add(vec3.create(), this.position, vec3.scale(vec3.create(), this.currentMoveVec, this.movePathSens*time));
     }
   }
 }

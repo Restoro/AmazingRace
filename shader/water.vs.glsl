@@ -67,9 +67,9 @@ void main() {
       //add them together to create more realistic waves
       vec3 waveVector = waveVector1  + waveVector3 + waveVector4;
       newPosition.y = waveVector.y;
-      normalOfVertex.x = waveVector.x;
+      normalOfVertex.x = waveVector.z;
       normalOfVertex.y = 1.0;
-      normalOfVertex.z = waveVector.z;
+      normalOfVertex.z = waveVector.x;
   }
 
   vec4 eyePosition = u_modelView * vec4(newPosition,1);

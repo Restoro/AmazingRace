@@ -44,7 +44,7 @@ function initCamera() {
   camera.addNextPosition(vec3.fromValues(0,5,25), vec3.fromValues(-50,-1,5,40));
   camera.addNextPosition(vec3.fromValues(-20,5,10), vec3.fromValues(-30,0,30));
   //camera.addNextPosition(vec3.fromValues(0,5,0), vec3.fromValues(-30,0,30));
-  camera.addNextPosition(vec3.fromValues(-5,5,2), vec3.fromValues(-30,2.5,-30));
+  camera.addNextPosition(vec3.fromValues(-5,5,0), vec3.fromValues(-30,2.5,-30));
   camera.addNextPosition(vec3.fromValues(-30,5,-10), vec3.fromValues(-10,2.5,-30));
 }
 
@@ -244,7 +244,7 @@ function createSceneGraph(gl, resources) {
     carNode.append(carBodyBackTransform);
     carNode.append(carBodyMiddleTransform);
 
-    let carAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateY:-0.01125}, [carNode]);
+    let carAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateY:-0.012}, [carNode]);
 
     root.append(new TransformationSGNode(glm.transform({ translate: [0,0,-5]}), carAnimation));
   }
@@ -732,7 +732,7 @@ function render(timeInMilliseconds) {
   //Parameter: out, fieldofview, aspect ratio, near clipping, far clipping
   context.projectionMatrix = mat4.perspective(mat4.create(), glm.deg2rad(25), gl.drawingBufferWidth / gl.drawingBufferHeight, 0.01, 300);
 
-  camera.proccessMovement(keys);
+  camera.proccessMovement(keys, deltaTime);
 
   context.viewMatrix = camera.computeViewMatrix();
   context.invViewMatrix = mat4.invert(mat4.create(), context.viewMatrix);
