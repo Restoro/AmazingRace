@@ -24,7 +24,7 @@ uniform float u_animationTime;
 uniform mat3 u_invView;
 uniform bool u_useWave;
 
-//Random formula
+//Random formula - Source Internet
 float random (vec2 st) {return fract(sin(dot(st.xy,vec2(1.9898,1.233)))*43758.5453123) * 0.03;
 }
 
@@ -60,12 +60,11 @@ void main() {
   if(u_useWave) {
       //generate wave movements
       vec3 waveVector1 = generateWaveWithNormals(a_position.xz, vec2(-1,0), 1.5, 0.1, u_animationTime, 0.0025);
-      //vec3 waveVector2 = generateWaveWithNormals(a_position.xz, vec2(-1,-0.1), 1.5, 0.1, u_animationTime, 0.0015);
-      vec3 waveVector3 = generateWaveWithNormals(a_position.xz, vec2(-1, 0.2), 0.1, 0.45 + random(vec2(10,-10)), u_animationTime, 0.01);
-      vec3 waveVector4 = generateWaveWithNormals(a_position.xz, vec2(-1, 0.4), 0.1, 0.45 + random(vec2(10,1)), u_animationTime, 0.01);
+      vec3 waveVector2 = generateWaveWithNormals(a_position.xz, vec2(-1, 0.2), 0.1, 0.45 + random(vec2(10,-10)), u_animationTime, 0.01);
+      vec3 waveVector3 = generateWaveWithNormals(a_position.xz, vec2(-1, 0.4), 0.1, 0.45 + random(vec2(10,1)), u_animationTime, 0.01);
 
       //add them together to create more realistic waves
-      vec3 waveVector = waveVector1  + waveVector3 + waveVector4;
+      vec3 waveVector = waveVector1  + waveVector2 + waveVector3;
       newPosition.y = waveVector.y;
       normalOfVertex.x = waveVector.z;
       normalOfVertex.y = 1.0;

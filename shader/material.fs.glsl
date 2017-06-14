@@ -86,7 +86,6 @@ vec4 calculateSimplePointLight(Light light, Material material, vec3 lightVec, ve
 	normalVec = normalize(normalVec);
 	eyeVec = normalize(eyeVec);
 
-		//TASK 1-1 implement phong shader
 	//compute diffuse term
 	float diffuse = max(dot(normalVec,lightVec),0.0);
 
@@ -111,7 +110,6 @@ vec4 calculateSimplePointLight(Light light, Material material, vec3 lightVec, ve
 void main() {
 
   vec4 textureColor = vec4(0,0,0,1);
-
   if(u_enableObjectTexture)
   {
     textureColor =  texture2D(u_tex,v_texCoord);
@@ -126,5 +124,4 @@ void main() {
 	vec4 spotLight = calculateSimpleSpotLight(u_spotLight, u_spotLightProp, u_material, v_spotLightVec, v_spotLightDir, v_normalVec, v_eyeVec, textureColor);
 
 	gl_FragColor = pointLight1 + spotLight + pointLight2;
-	//gl_FragColor = //pointLight1 + pointLight2 + spotLight;
 }

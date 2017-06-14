@@ -3,14 +3,16 @@ class SpotLightSGNode extends LightSGNode {
   constructor(position, children) {
     super(position, children);
     this.dir = [1,0,0];
+    //range of the cut off angle
     this.cosineCutoff = 50;
+    //inentsity of the light
     this.exponent = 1.0;
     //uniform name
     this.uniform = 'u_spotLight';
     this.uniformProp = 'u_spotLightProp';
   }
 
-    setLightPropUniforms(context) {
+  setLightPropUniforms(context) {
       const gl = context.gl;
       if (!context.shader) {
         return;
@@ -27,7 +29,6 @@ class SpotLightSGNode extends LightSGNode {
 
     render(context) {
       this.setLightPropUniforms(context);
-      //console.log(this.dir);
       super.render(context);
     }
   }

@@ -1,15 +1,14 @@
 //the OpenGL context
 var gl = null;
-
 //Rootnode for scene
 var root = null;
 var camera = null;
-
 var lastFrameTime = 0;
 
 var canvasWidth = 1200;
 var canvasHeight = 500;
 
+//Map for current state of keys
 const keys = {};
 
 /**
@@ -19,18 +18,22 @@ function init(resources) {
   //create a GL context
   gl = createContext(canvasWidth, canvasHeight);
 
+  //enable blending + blending function (alphatexturing)
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-  //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
+  //depth buffering
   gl.enable(gl.DEPTH_TEST);
+
   initSkybox(resources,gl);
   initCamera();
+
   root = createSceneGraph(gl, resources);
 
   initInteraction(gl.canvas);
 }
 
+//Sets skyBox texture
 function initSkybox(resources, gl) {
   let skyBox = new CubeMap(resources, gl);
   envcubetexture = skyBox.envcubetexture;
@@ -38,6 +41,8 @@ function initSkybox(resources, gl) {
 
 function initCamera() {
   camera = new Camera(false, vec3.fromValues(10 ,10,-70), 0, 0);
+
+  //Camera path
   camera.addNextPosition(vec3.fromValues(15,10,-60), vec3.fromValues(60,0,0));
   camera.addNextPosition(vec3.fromValues(30,5,-10), vec3.fromValues(40,0,20));
   camera.addNextPosition(vec3.fromValues(35,5,20), vec3.fromValues(0,-1.5,30));
@@ -49,10 +54,10 @@ function initCamera() {
 }
 
 function createSceneGraph(gl, resources) {
-
   var sunLight;
   var moonLight;
   const root = new ShaderSGNode(createProgram(gl, resources.materialvs, resources.materialfs));
+  //skybox
   {
     //add skybox by putting large sphere around us
     let skyBox = new CubeMap(resources, gl);
@@ -61,12 +66,6 @@ function createSceneGraph(gl, resources) {
         new EnvironmentSGNode(envcubetexture,4,false,
                     new RenderSGNode(makeSphere(200)))]);
     root.append(skybox);
-  }
-
-  function createLightSphere() {
-    return new ShaderSGNode(createProgram(gl, resources.vs, resources.fs), [
-      new TextureSGNode(floorTexture,0,new RenderSGNode(makeSphere(.2,10,10)))
-    ]);
   }
 
   //spotlight
@@ -100,7 +99,6 @@ function createSceneGraph(gl, resources) {
     animateLight.append(translateLight);
     translateLight.append(sunLight);
 
-
     let sunTexture = createImage2DTexture(resources.suntexture);
     let sun = new TextureSGNode(sunTexture,0,new RenderSGNode(makeSphere(16)));
     translateLight.append(sun); //add sphere for debugging: since we use 0,0,0 as our light position the sphere is at the same position as the light source
@@ -127,7 +125,6 @@ function createSceneGraph(gl, resources) {
     translateLight.append(moon);
 
     root.append(animateLight);
-
   }
 
   //car
@@ -282,16 +279,12 @@ function createSceneGraph(gl, resources) {
 
     let completePool = new TransformationSGNode(glm.transform({ translate: [-35,-1,35], scale:0.81}), [poolObject]);
     root.append(completePool);
-
   }
 
   //floor
-{
+  {
   let floorTexture = createImage2DTexture(resources.floortexture);
-  let floor = new MaterialSGNode(
-            new TextureSGNode(floorTexture,0,
-              new RenderSGNode(makeRect(25, 25))
-            ));
+  let floor = new MaterialSGNode(new TextureSGNode(floorTexture,0,new RenderSGNode(makeRect(25, 25))));
   setMaterialParameter(floor,[0,0,0,0] ,[0,0,0,0] , [0.0, 0.0, 0.0, 1], [0,0,0,0], 50.0);
   root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 2}), [
     floor
@@ -315,10 +308,8 @@ function createSceneGraph(gl, resources) {
 
     //eyes
     let eyeTexture = createImage2DTexture(resources.eyetexture);
-
     let dragonlefteyeMaterial  = new TextureSGNode(eyeTexture,0,new RenderSGNode(makeSphere(0.15)));
     let dragonlefteye = new TransformationSGNode(glm.transform({ translate: [0,0,0], rotateY: -50, scale:1.0}), [dragonlefteyeMaterial]);
-
     let dragonrighteyeMaterial  = new TextureSGNode(eyeTexture,0,new RenderSGNode(makeSphere(0.15)));
     let dragonrighteye = new TransformationSGNode(glm.transform({ translate: [0,0,0.6],rotateY: -55, scale:1.0}), [dragonrighteyeMaterial]);
     let dragonEyes = new TransformationSGNode(glm.transform({ translate: [0.6,1.2,0.1]}), [dragonlefteye, dragonrighteye]);
@@ -351,7 +342,6 @@ function createSceneGraph(gl, resources) {
     let dragonNodeStartFlying = new AnimationSGNode(mat4.create(), [40,-1.5,20], camera, animateRange, {translate:[0,0.005,0]}, dragonAnimate);
     dragonNodeStartFlying.maxDelta = 500;
     dragonNodeStartFlying.reset = true;
-
 
     root.append(new TransformationSGNode(glm.transform({ translate: [-4,-1,-7]}), [
       dragonNodeStartFlying
@@ -432,9 +422,8 @@ function createSceneGraph(gl, resources) {
 
   }
 
-  //wood fence
+  //wood fence and sharkshield
   {
-
     let fullFence = new TransformationSGNode(glm.transform({ translate: [-50,-0.5,-4], scale:1.0}));
     let fenceX = new TransformationSGNode(glm.transform({ translate: [0,0,0], scale:1.0}));
     for(var i=0; i < 14; i++) {
@@ -515,10 +504,7 @@ function createSceneGraph(gl, resources) {
   //tree
   {
     let treeTexture = createImage2DTexture(resources.treetexture);
-    let tree = new MaterialSGNode(
-              new TextureSGNode(treeTexture,0,
-                new RenderSGNode(makeTree())
-              ));
+    let tree = new MaterialSGNode(new TextureSGNode(treeTexture,0, new RenderSGNode(makeRect(1,1))));
     setMaterialParameter(tree,[0,0,0,0] , [0,0,0,0],[0.0, 0.0, 0.0, 0],[0,0,0,0],50.0 );
 
     let treeAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, { treeRotate:tree});
@@ -542,13 +528,10 @@ function createSceneGraph(gl, resources) {
     root.append(new TransformationSGNode(glm.transform({ translate: [15,4.5,15], scale: 6}), [ treeAnimation]));
 
   }
-//palmtree
+  //palmtree
   {
     let palmTexture = createImage2DTexture(resources.palmtexture);
-    let palm = new MaterialSGNode(
-              new TextureSGNode(palmTexture,0,
-                new RenderSGNode(makeTree())
-              ));
+    let palm = new MaterialSGNode(new TextureSGNode(palmTexture,0, new RenderSGNode(makeRect(1,1))));
     setMaterialParameter(palm,[0,0,0,0] , [0,0,0,0],[0.0, 0.0, 0.0, 0],[0,0,0,0],50.0 );
     let palmAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, { treeRotate:palm});
     palmAnimation.append(palm);
@@ -563,12 +546,11 @@ function createSceneGraph(gl, resources) {
     root.append(new TransformationSGNode(glm.transform({ translate: [-5,4.5,42], scale: 6}), [ palmAnimation]));
 
   }
-{
+
+  //fir
+  {
   let firTexture = createImage2DTexture(resources.firtexture);
-  let fir = new MaterialSGNode(
-            new TextureSGNode(firTexture,0,
-              new RenderSGNode(makeTree())
-            ));
+    let fir = new MaterialSGNode(new TextureSGNode(firTexture,0,new RenderSGNode(makeRect(1,1))));
   setMaterialParameter(fir,[0,0,0,0] , [0,0,0,0],[0.0, 0.0, 0.0, 0],[0,0,0,0],50.0 );
 
   let firAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, { treeRotate:fir});
@@ -578,11 +560,12 @@ function createSceneGraph(gl, resources) {
   root.append(new TransformationSGNode(glm.transform({ translate: [40,4.5,-25], scale: 6}), [ firAnimation]));
   root.append(new TransformationSGNode(glm.transform({ translate: [10,4.5,-25], scale: 6}), [ firAnimation]));
   root.append(new TransformationSGNode(glm.transform({ translate: [15,4.5,-15], scale: 6}), [ firAnimation]));
+  }
 
-}
   return root;
 }
 
+//callby reference
 function setMaterialParameter(node, ambient, diffuse, specular, emission, shininess) {
   node.ambient = ambient;
   node.diffuse = diffuse;
@@ -614,15 +597,6 @@ function createImage2DTexture(image) {
   gl.bindTexture(gl.TEXTURE_2D, null);
   return textureNode;
 }
-
-
-function makeTree() {
-  var tree = makeRect(1, 1);
-  //Texture would be upside down
-//  tree.texture = [1, 1 /**/, 0, 1 /**/, 0, 0 /**/, 1, 0];
-  return tree;
-}
-
 
 function initInteraction(canvas) {
   const mouse = {
@@ -695,9 +669,7 @@ function initInteraction(canvas) {
       keys["KeyW"] = true;
       break;
       case "ArrowDown":
-      console.log(event.code)
       case "KeyS":
-
       //Move backward in look directiom
       keys["KeyS"] = true;
       break;
@@ -715,7 +687,6 @@ function initInteraction(canvas) {
  * render one frame
  */
 function render(timeInMilliseconds) {
-
   //set viewport
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
@@ -758,7 +729,7 @@ loadResources({
   pooltexture: 'models/poolMosaic.jpg',
   palmtexture: 'models/Palme.png',
   woodtexture: 'models/woodTexture.jpg',
-  icetexture: 'models/IceTexture.jpg',
+  icetexture: 'models/icetexture.jpg',
   poolladdermodel: 'models/poolladder.obj',
   metaltexture: 'models/metalTexture.jpg',
   wheeltexture: 'models/wheelTexture.jpg',
@@ -769,18 +740,6 @@ loadResources({
   streetlampmodel: 'models/streetlamp.obj',
   streetlamptexture: 'models/lampMetal.jpg',
   eyetexture: 'models/eye.png',
-  wingtexture:'models/wing.png',
-
-
-/*
-  env_pos_x: 'skybox/debug/Red.png',
-  env_neg_x: 'skybox/debug/Green.png',
-  env_pos_y: 'skybox/debug/Yellow.png',
-  env_neg_y: 'skybox/debug/White.png',
-  env_pos_z: 'skybox/debug/Purple.png',
-  env_neg_z: 'skybox/debug/Blue.png'
-*/
-
 
   env_pos_x: 'skybox/sky/skyposx1.png',
   env_neg_x: 'skybox/sky/skynegx1.png',
@@ -788,16 +747,6 @@ loadResources({
   env_neg_y: 'skybox/sky/skynegy1.png',
   env_pos_z: 'skybox/sky/skyposz1.png',
   env_neg_z: 'skybox/sky/skynegz1.png'
-
-
-/*
-  env_pos_x: 'skybox/UnionSquare/posx.jpg',
-  env_neg_x: 'skybox/UnionSquare/negx.jpg',
-  env_pos_y: 'skybox/UnionSquare/posy.jpg',
-  env_neg_y: 'skybox/UnionSquare/negy.jpg',
-  env_pos_z: 'skybox/UnionSquare/posz.jpg',
-  env_neg_z: 'skybox/UnionSquare/negz.jpg',
-*/
 
 }).then(function (resources /*an object containing our keys with the loaded resources*/) {
   init(resources);

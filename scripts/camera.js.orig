@@ -15,8 +15,13 @@ class Camera {
     this.currentMoveVec = vec3.create();
     this.currentLookMoveVec = vec3.create();
     //Used for regulating camera path movement speed
+<<<<<<< HEAD
     this.movePathSens = 0.000215;
+
+=======
+    this.movePathSens = 0.004;
     this.nextLookAndPos = new PositionLookAt(this.position, this.lookAt);
+>>>>>>> 0fb4a6860d8f38dd7574d8bc40633e3fad517598
     //This variable is used for switchting between path and freecam
     this.enable = enableCam;
     this.computeViewMatrix();
@@ -56,6 +61,10 @@ class Camera {
   }
 
   computeViewMatrix() {
+<<<<<<< HEAD
+
+=======
+>>>>>>> 0fb4a6860d8f38dd7574d8bc40633e3fad517598
     let pitch = glMatrix.toRadian(this.rotation.y);
     let yaw = glMatrix.toRadian(-this.rotation.x);
 
