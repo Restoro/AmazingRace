@@ -5,10 +5,6 @@ class Objects {
     var normalData = [];
     var indexData = [];
 
-    //We need twice the points
-    width = width*2;
-    height = height*2;
-
     { //Set all Vertex Points
       for(var row = 0; row < height; row++) {
         for(var col = 0; col < width; col++) {
@@ -30,14 +26,17 @@ class Objects {
     { //Set all Indices
       for(var row=0; row < height -1; row++) {
         if(row > 0) {
+          //Degenerate triangle. Repeat first vertex
           indexData.push(row * height);
         }
         for(var col=0; col < width; col++) {
+          //Create the strip in the row
           indexData.push((row * height) + col);
           indexData.push(((row+1) * height) + col);
         }
 
         if(row < height-2) {
+          //Degenerate triangle. Repeat last vertex
           indexData.push((row+1)*height + (width-1));
         }
       }

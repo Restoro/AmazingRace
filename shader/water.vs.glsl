@@ -24,21 +24,17 @@ uniform float u_animationTime;
 uniform mat3 u_invView;
 uniform bool u_useWave;
 
-//Random formula - Source Internet
-float random (vec2 st) {return fract(sin(dot(st.xy,vec2(1.9898,1.233)))*43758.5453123) * 0.03;
-}
-
 //wave formula
 float generateWave(vec2 position, vec2 direction, float amp, float freq, float time, float phase) {
   return amp * sin(dot(position, direction) * freq + time * phase);
 }
 
-//a A w cos(w (a x + b z) + q t) - derivative (x) of wave formula
+//a A w cos(w (a x + b z) + q t) - partial derivative (x) of wave formula
 float calcNormalX(vec2 position, vec2 direction, float amp, float freq, float time, float phase) {
   return -1.0 * (direction.x * freq * amp * cos(freq * dot(position, direction) + time * phase));
 }
 
-//A b w cos(w (a x + b z) + q t) - derivative (z) of wave formula
+//A b w cos(w (a x + b z) + q t) - partial derivative (z) of wave formula
 float calcNormalZ(vec2 position, vec2 direction, float amp, float freq, float time, float phase) {
   return -1.0 * (direction.y * freq * amp * cos(freq * dot(position, direction) + time * phase));
 }
@@ -60,11 +56,11 @@ void main() {
   if(u_useWave) {
       //generate wave movements
       vec3 waveVector1 = generateWaveWithNormals(a_position.xz, vec2(-1,0), 1.5, 0.1, u_animationTime, 0.0025);
-      vec3 waveVector2 = generateWaveWithNormals(a_position.xz, vec2(-1, 0.2), 0.1, 0.45 + random(vec2(10,-10)), u_animationTime, 0.01);
-      vec3 waveVector3 = generateWaveWithNormals(a_position.xz, vec2(-1, 0.4), 0.1, 0.45 + random(vec2(10,1)), u_animationTime, 0.01);
+      vec3 waveVector2 = generateWaveWithNormals(a_position.xz, vec2(-1, 0.2), 0.1, 0.65, u_animationTime, 0.01);
+      vec3 waveVector3 = generateWaveWithNormals(a_position.xz, vec2(-1, 0.4), 0.1, 0.55, u_animationTime, 0.01);
 
       //add them together to create more realistic waves
-      vec3 waveVector = waveVector1  + waveVector2 + waveVector3;
+      vec3 waveVector = waveVector1 + waveVector2 + waveVector3;
       newPosition.y = waveVector.y;
       normalOfVertex.x = waveVector.z;
       normalOfVertex.y = 1.0;
@@ -79,10 +75,7 @@ void main() {
   v_lightVec2 = u_light2Pos - eyePosition.xyz;
 
   vec4 clipCoordinates = u_projection * eyePosition;
-  //transform camera ray direction to world space
 	v_cameraRayVec = u_invView * eyePosition.xyz;
-
-	//calculate normal vector in world space
   v_normalVec = u_normalMatrix * normalOfVertex;
 	v_envNormalVec = u_invView * u_normalMatrix * normalOfVertex;
 

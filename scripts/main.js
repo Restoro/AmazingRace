@@ -250,7 +250,7 @@ function createSceneGraph(gl, resources) {
   {
     //water in pool
     let waterShader = new ShaderSGNode(createProgram(gl, resources.envvs, resources.envfs));
-    let waterNode = new WaterSGNode(modelRendererStrip(Objects.makeRectMesh(50,50)), true);
+    let waterNode = new WaterSGNode(modelRendererStrip(Objects.makeRectMesh(100,100)), true);
     let waterAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 150, { waterWave:waterNode});
     waterAnimation.append(waterNode);
     let water = new MaterialSGNode();
