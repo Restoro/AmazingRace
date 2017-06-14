@@ -53,7 +53,6 @@ class AnimationSGNode extends TransformationSGNode{
   }
 
   computeCurrentPosition(context) {
-
     //transform with the current model matrix to get world coordinate since camera is also in world coordinates
     const original = this.position;
     let vec4Position = vec4.fromValues(original[0], original[1],original[2], 1)
@@ -94,15 +93,10 @@ class AnimationSGNode extends TransformationSGNode{
   creatBillboardMatrix(view){
     let billboard = mat4.create();
     billboard[0] = view[0];
-//    billboard[1] = view[4];
     billboard[2] = view[8];
     billboard[3] = this.position[0];
-  //  billboard[4] = view[1];
-  //  billboard[5] = view[5];
-  //  billboard[6] = view[9];
     billboard[7] = this.position[1];
     billboard[8] = view[2];
-  //c  billboard[9] = view[6];
     billboard[10] = view[10];
     billboard[11] = this.position[2];
     billboard[12] = 0.0;

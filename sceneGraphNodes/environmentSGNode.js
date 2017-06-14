@@ -1,5 +1,4 @@
 class EnvironmentSGNode extends SGNode {
-
   constructor(envtexture, textureunit, doReflect , children ) {
       super(children);
       this.envtexture = envtexture;
