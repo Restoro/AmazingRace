@@ -43,14 +43,13 @@ function initCamera() {
   camera = new Camera(false, vec3.fromValues(10 ,10,-70), 0, 0);
 
   //Camera path
-  camera.addNextPosition(vec3.fromValues(15,10,-60), vec3.fromValues(60,0,0));
-  camera.addNextPosition(vec3.fromValues(30,5,-10), vec3.fromValues(40,0,20));
-  camera.addNextPosition(vec3.fromValues(35,5,20), vec3.fromValues(0,-1.5,30));
-  camera.addNextPosition(vec3.fromValues(0,5,25), vec3.fromValues(-50,-1,5,40));
-  camera.addNextPosition(vec3.fromValues(-20,5,10), vec3.fromValues(-30,0,30));
-  //camera.addNextPosition(vec3.fromValues(0,5,0), vec3.fromValues(-30,0,30));
-  camera.addNextPosition(vec3.fromValues(-5,5,0), vec3.fromValues(-30,2.5,-30));
-  camera.addNextPosition(vec3.fromValues(-30,5,-10), vec3.fromValues(-10,2.5,-30));
+  camera.addNextPosition(vec3.fromValues(15,10,-60), vec3.fromValues(60,0,0), "Sun (Light Source) Rising, Billboarding Trees, Car Driving");
+  camera.addNextPosition(vec3.fromValues(30,5,-10), vec3.fromValues(40,0,20), "Dragon (Composed Model, Material) flying , Billboarding Trees, Car Driving");
+  camera.addNextPosition(vec3.fromValues(35,5,20), vec3.fromValues(7.5,2.5,30), "Water (Material) moving, Billboarding Trees, Car Driving");
+  camera.addNextPosition(vec3.fromValues(0,5,25), vec3.fromValues(-50,-1,5,40), "Water (Material) moving, Beachballs Jumping, Billboarding Trees, Car Driving");
+  camera.addNextPosition(vec3.fromValues(-20,5,10), vec3.fromValues(-30,0,30), "Water (Material) moving, Beachball rolling, Fence (Alpha Texture), Car Driving");
+  camera.addNextPosition(vec3.fromValues(-5,5,0), vec3.fromValues(-30,2.5,-30),"Icespikes (Comlex Objects), Car Driving");
+  camera.addNextPosition(vec3.fromValues(-30,5,-10), vec3.fromValues(-10,2.5,-30), "Snowman (Composed Model, Material) Running, Sowman falling apart, Spotlight, Billboarding Trees, Car Driving");
 }
 
 function createSceneGraph(gl, resources) {
@@ -94,7 +93,7 @@ function createSceneGraph(gl, resources) {
     sunLight.specular = [0, 0, 0, 1];
     sunLight.position = [0, 0, 0];
 
-    let animateLight = new AnimationSGNode(mat4.create(), sunLight.position, camera, 1000, { rotateZ: 0.005});
+    let animateLight = new AnimationSGNode(mat4.create(), sunLight.position, camera, 1000, "Sun (Light Source) moving", { rotateZ: 0.005});
     let translateLight = new TransformationSGNode(glm.transform({translate: [150,5,0]})); //translating the light is the same as setting the light position
     animateLight.append(translateLight);
     translateLight.append(sunLight);
@@ -115,7 +114,7 @@ function createSceneGraph(gl, resources) {
     moonLight.position = [0, 0, 0];
     moonLight.uniform = 'u_light2';
 
-    let animateLight = new AnimationSGNode(mat4.create(), moonLight.position, camera, 1000, { rotateZ: 0.005});
+    let animateLight = new AnimationSGNode(mat4.create(), moonLight.position, camera, 1000, "Moon (Light Source) moving", { rotateZ: 0.005});
     let translateLight = new TransformationSGNode(glm.transform({translate: [-150,5,0]}));
     animateLight.append(translateLight);
     translateLight.append(moonLight);
@@ -143,7 +142,7 @@ function createSceneGraph(gl, resources) {
         new RenderSGNode(makeSphere(1))
       ]);
     setMaterialParameter(tire, [0,0,0,1], [0,0,0,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
-    let tireAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 200, {rotateX:-0.5}, [tire]);
+    let tireAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, "Wheel moving", {rotateX:-0.5}, [tire]);
     tireTransform.append(tireAnimation);
     carBodyFront.append(new TextureSGNode(wheelTexture, 0, tireTransform));
 
@@ -152,7 +151,7 @@ function createSceneGraph(gl, resources) {
         new RenderSGNode(makeSphere(1))
       ]);
     setMaterialParameter(tire2, [0,0,0,1], [0,0,0,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
-    let tire2Animation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 200, {rotateX:0.5}, [tire2]);
+    let tire2Animation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, "Wheel moving", {rotateX:0.5}, [tire2]);
     tire2Transform.append(tire2Animation);
     carBodyFront.append(new TextureSGNode(wheelTexture, 0, tire2Transform));
 
@@ -168,7 +167,7 @@ function createSceneGraph(gl, resources) {
         new RenderSGNode(makeSphere(1))
       ]);
     setMaterialParameter(tire3, [0,0,0,1], [0,0,0,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
-    let tire3Animation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 200, {rotateX:0.5}, [tire3]);
+    let tire3Animation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, "Wheel moving", {rotateX:0.5}, [tire3]);
     tire3Transform.append(tire3Animation);
     carBodyBackTransform.append(new TextureSGNode(wheelTexture, 0, tire3Transform));
 
@@ -177,7 +176,7 @@ function createSceneGraph(gl, resources) {
         new RenderSGNode(makeSphere(1))
       ]);
     setMaterialParameter(tire4, [0,0,0,1], [0,0,0,1], [0.75, 0.75, 0.75, 1], [0,0,0,1], 5);
-    let tire4Animation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 200, {rotateX:-0.5}, [tire4]);
+    let tire4Animation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, "Wheel moving", {rotateX:-0.5}, [tire4]);
     tire4Transform.append(tire4Animation);
     carBodyBackTransform.append(new TextureSGNode(wheelTexture, 0, tire4Transform));
 
@@ -241,7 +240,7 @@ function createSceneGraph(gl, resources) {
     carNode.append(carBodyBackTransform);
     carNode.append(carBodyMiddleTransform);
 
-    let carAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateY:-0.012}, [carNode]);
+    let carAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, "Car driving", {rotateY:-0.012}, [carNode]);
 
     root.append(new TransformationSGNode(glm.transform({ translate: [0,0,-5]}), carAnimation));
   }
@@ -251,7 +250,7 @@ function createSceneGraph(gl, resources) {
     //water in pool
     let waterShader = new ShaderSGNode(createProgram(gl, resources.envvs, resources.envfs));
     let waterNode = new WaterSGNode(modelRendererStrip(Objects.makeRectMesh(100,100)), true);
-    let waterAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 150, { waterWave:waterNode});
+    let waterAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 80, "Water moving", { waterWave:waterNode});
     waterAnimation.append(waterNode);
     let water = new MaterialSGNode();
     setMaterialParameter(water, [0.25098, 0.54313, 1, 0.165], [0.25098, 0.54313, 0.5, 0.165], [0.8, 0.8, 0.8, 0.165], [0,0,0,0.165], 50.0);
@@ -297,12 +296,12 @@ function createSceneGraph(gl, resources) {
     let dragonleftfootMaterial  = new MaterialSGNode([new RenderSGNode(Objects.makeCube(0.2))]);
     setMaterialParameter(dragonleftfootMaterial,[0.05,0.2,0.0,1],[0.1,0.1,0.1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
     let dragonleftfoot = new TransformationSGNode(glm.transform({ translate: [0,0,0], scale:1.0}), [dragonleftfootMaterial]);
-    let dragonLeftFootAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, { rotateZSin:[0.01,-20,0]}, dragonleftfoot);
+    let dragonLeftFootAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, "Dragon (Composed Model, Material) flying", { rotateZSin:[0.01,-20,0]}, dragonleftfoot);
     dragonLeftFootAnimate.reset = true;
     let dragonrightfootMaterial  = new MaterialSGNode([new RenderSGNode(Objects.makeCube(0.2))]);
     setMaterialParameter(dragonrightfootMaterial, [0.05,0.2,0.0,1],[0.1,0.1,0.1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
     let dragonrightfoot = new TransformationSGNode(glm.transform({ translate: [0,0,0.8], scale:1.0}), [dragonrightfootMaterial]);
-    let dragonRightFootAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, { rotateZSin:[0.01,20,0]}, dragonrightfoot);
+    let dragonRightFootAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, "Dragon (Composed Model, Material) flying", { rotateZSin:[0.01,20,0]}, dragonrightfoot);
     dragonRightFootAnimate.reset = true;
     let dragonFeet = new TransformationSGNode(glm.transform({ translate: [0,0.5,0]}), [dragonLeftFootAnimate, dragonRightFootAnimate]);
 
@@ -331,15 +330,15 @@ function createSceneGraph(gl, resources) {
     let dragonwingMaterial  = new MaterialSGNode([new RenderSGNode(makeRect(0.2,0.7))]);
     setMaterialParameter(dragonwingMaterial, [0.6,0.0,0.0,1],[0.1,0.1,0.1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
     let dragonrightwing = new TransformationSGNode(glm.transform({ translate: [-0.5,0,0.8],rotateZ: 10,rotateY: 10,rotateX:90}), [dragonwingMaterial]);
-    let dragonrightWingAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, { rotateXSin:[0.02,10,0]}, dragonrightwing);
+    let dragonrightWingAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, "Dragon (Composed Model, Material) flying", { rotateXSin:[0.02,10,0]}, dragonrightwing);
     let dragonleftwing = new TransformationSGNode(glm.transform({ translate: [-0.5,0,-0.3],rotateZ: 10,rotateY: 10,rotateX:90}), [dragonwingMaterial]);
-    let dragonleftWingAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, { rotateXSin:[-0.02,10,0]}, dragonleftwing);
+    let dragonleftWingAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, animateRange, "Dragon (Composed Model, Material) flying", { rotateXSin:[-0.02,10,0]}, dragonleftwing);
     let dragonWings = new TransformationSGNode(glm.transform({ translate: [0.6,1.2,0.1]}), [dragonleftWingAnimate, dragonrightWingAnimate]);
 
     let dragon = new TransformationSGNode(glm.transform({ translate: [40,-1.5,20], rotateY:160, scale:3.0}), [dragonbody,dragonFeet,dragonEyes,dragonSpikes,dragonWings]);
-    let dragonAnimate = new AnimationSGNode(mat4.create(), [40,-1.5,20], camera, animateRange, { rotateZSin:[-0.005,1,0]}, dragon);
+    let dragonAnimate = new AnimationSGNode(mat4.create(), [40,-1.5,20], camera, animateRange, "Dragon (Composed Model, Material) flying", { rotateZSin:[-0.005,1,0]}, dragon);
     dragonAnimate.reset = true;
-    let dragonNodeStartFlying = new AnimationSGNode(mat4.create(), [40,-1.5,20], camera, animateRange, {translate:[0,0.005,0]}, dragonAnimate);
+    let dragonNodeStartFlying = new AnimationSGNode(mat4.create(), [40,-1.5,20], camera, animateRange, "Dragon (Composed Model, Material) flying", {translate:[0,0.005,0]}, dragonAnimate);
     dragonNodeStartFlying.maxDelta = 500;
     dragonNodeStartFlying.reset = true;
 
@@ -351,7 +350,7 @@ function createSceneGraph(gl, resources) {
   //snowman
   {
     let snowManNode = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
-    let snowManNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 33, {rotateY:0.1}, [snowManNode]);
+    let snowManNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 33, "Snowman (Composed Model, Material) moving", {rotateY:0.1}, [snowManNode]);
 
     let snowManLowMaterial  = new MaterialSGNode([new RenderSGNode(makeSphere(0.5))]);
     setMaterialParameter(snowManLowMaterial, [0.9,0.9,1,1],[0.9,0.9,1,1],[0.1, 0.1, 0.1, 1], [0,0,0,1], 1);
@@ -374,8 +373,8 @@ function createSceneGraph(gl, resources) {
     setMaterialParameter(snowManArmRightMaterial, [0.45,0.27,0.07,1],[0.45,0.27,0.07,1],[0.0, 0.0, 0.0, 1], [0,0,0,1], 1);
     let snowManArmRight = new TransformationSGNode(glm.transform({ translate: [0.65,0,0], scale:[1,0.2,0.2]}), [snowManArmRightMaterial]);
 
-    let snowManArmRightAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 33, { rotateZSin:[0.01,20,0]}, snowManArmRight);
-    let snowManArmLeftAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 33, { rotateZSin:[0.01,20,0]}, snowManArmLeft);
+    let snowManArmRightAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 33, "Snowman (Composed Model, Material) moving",{ rotateZSin:[0.01,20,0]}, snowManArmRight);
+    let snowManArmLeftAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 33, "Snowman (Composed Model, Material) moving",{ rotateZSin:[0.01,20,0]}, snowManArmLeft);
     let snowManArms = new TransformationSGNode(glm.transform({ translate: [0,0.7,0]}), [snowManArmLeftAnimate, snowManArmRightAnimate]);
 
     snowManNode.append(snowManLow);
@@ -388,10 +387,10 @@ function createSceneGraph(gl, resources) {
     ]));
 
     let snowManNode2 = new TransformationSGNode(glm.transform({ translate: [1.5,0,0], scale:1.0}));
-    let snowManHighAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 31, { rotateXSin:[0.0015,150,0]}, snowManHigh);
+    let snowManHighAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 31, "Snowman falling apart", { rotateXSin:[0.0015,150,0]}, snowManHigh);
     snowManHighAnimate.maxDelta = 600;
     snowManHighAnimate.reset = true;
-    let snowManMiddleAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, { rotateZSin:[-0.0015,150,0]}, snowManMiddle);
+    let snowManMiddleAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, "Snowman falling apart", { rotateZSin:[-0.0015,150,0]}, snowManMiddle);
     snowManNode2.append(snowManHighAnimate);
     snowManNode2.append(snowManMiddleAnimate);
     snowManMiddleAnimate.maxDelta = 600;
@@ -411,13 +410,13 @@ function createSceneGraph(gl, resources) {
     let beachBall = new TextureSGNode(beachBallTexture,0,new RenderSGNode(makeSphere(0.4)));
     beachBallNode.append(beachBall);
 
-    let beachBallNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, {translate: [0.005,0,0], rotateZ:-0.20}, [beachBall]);
+    let beachBallNodeAnimate = new AnimationSGNode(mat4.create(), [0,0,0], camera, 30, "Beachball rolling", {translate: [0.005,0,0], rotateZ:-0.20}, [beachBall]);
     beachBallNodeAnimate.maxDelta = 5000;
     beachBallNodeAnimate.reset = true;
     root.append(new TransformationSGNode(glm.transform({ translate: [-35,-1,22.5]}), [beachBallNodeAnimate]));
-    let beachBallNodeAnimate2 = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateXSin:[0.005,100,0]}, [beachBallNode]);
+    let beachBallNodeAnimate2 = new AnimationSGNode(mat4.create(), [0,0,0], camera, 60, "Beachball jumping", {rotateXSin:[0.005,100,0]}, [beachBallNode]);
     root.append(new TransformationSGNode(glm.transform({ translate: [-33,1.5,0], rotateY:90, scale:5}), [beachBallNodeAnimate2]));
-    let beachBallNodeAnimate3 = new AnimationSGNode(mat4.create(), [0,0,0], camera, 100, {rotateXSin:[0.005,100,0]}, [beachBallNode]);
+    let beachBallNodeAnimate3 = new AnimationSGNode(mat4.create(), [0,0,0], camera, 60, "Beachball jumping", {rotateXSin:[0.005,100,0]}, [beachBallNode]);
     root.append(new TransformationSGNode(glm.transform({ translate: [-12,0,17], rotateY:30, scale:2.5}), [beachBallNodeAnimate3]));
 
   }
@@ -473,8 +472,8 @@ function createSceneGraph(gl, resources) {
     for(var i=0; i < 30; i++) {
       let width = Math.random() * 2 + 0.25;
       let height = Math.random() * 5 + 1;
-      let translateX = Math.random() * 20 +2;
-      let translateZ = Math.random() * 20;
+      let translateX = Math.random() * 15 + 3;
+      let translateZ = Math.random() * 15 + 3;
       let rotY = Math.random() * 180;
 
       let iceSpikeRandom = new MaterialSGNode(new TextureSGNode(iceSpikeTexture,0,new RenderSGNode(Objects.makeIceSpikes(width,height))));
@@ -507,7 +506,7 @@ function createSceneGraph(gl, resources) {
     let tree = new MaterialSGNode(new TextureSGNode(treeTexture,0, new RenderSGNode(makeRect(1,1))));
     setMaterialParameter(tree,[0,0,0,0] , [0,0,0,0],[0.0, 0.0, 0.0, 0],[0,0,0,0],50.0 );
 
-    let treeAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, { treeRotate:tree});
+    let treeAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, "Billboarding Trees", { treeRotate:tree});
     treeAnimation.append(tree);
 
     root.append(new TransformationSGNode(glm.transform({ translate: [30,4.5,-40], scale: 6}), [ treeAnimation]));
@@ -533,7 +532,7 @@ function createSceneGraph(gl, resources) {
     let palmTexture = createImage2DTexture(resources.palmtexture);
     let palm = new MaterialSGNode(new TextureSGNode(palmTexture,0, new RenderSGNode(makeRect(1,1))));
     setMaterialParameter(palm,[0,0,0,0] , [0,0,0,0],[0.0, 0.0, 0.0, 0],[0,0,0,0],50.0 );
-    let palmAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, { treeRotate:palm});
+    let palmAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, "Billboarding Trees", { treeRotate:palm});
     palmAnimation.append(palm);
 
     root.append(new TransformationSGNode(glm.transform({ translate: [-40,4.5,20], scale: 6}), [ palmAnimation]));
@@ -553,7 +552,7 @@ function createSceneGraph(gl, resources) {
       let fir = new MaterialSGNode(new TextureSGNode(firTexture,0,new RenderSGNode(makeRect(1,1))));
     setMaterialParameter(fir,[0,0,0,0] , [0,0,0,0],[0.0, 0.0, 0.0, 0],[0,0,0,0],50.0 );
 
-    let firAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, { treeRotate:fir});
+    let firAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, "Billboarding Trees", { treeRotate:fir});
     firAnimation.append(fir);
 
     root.append(new TransformationSGNode(glm.transform({ translate: [35,4.5,30], scale: 6}), [ firAnimation]));
@@ -708,8 +707,9 @@ function render(timeInMilliseconds) {
 
   context.viewMatrix = camera.computeViewMatrix();
   context.invViewMatrix = mat4.invert(mat4.create(), context.viewMatrix);
-
+  camera.clearDisplayText();
   root.render(context);
+  camera.showDisplayText();
   //request another call as soon as possible
   requestAnimationFrame(render);
 }

@@ -1,5 +1,5 @@
 class AnimationSGNode extends TransformationSGNode{
-  constructor(matrix, position, camera, range, functionParameter, children) {
+  constructor(matrix, position, camera, range, text, functionParameter, children) {
     super(null, children);
     this.latestMatrix = matrix;
     this.originalMatrix = matrix;
@@ -9,6 +9,7 @@ class AnimationSGNode extends TransformationSGNode{
     //Functionparameter must be accepted by glm.transform
     this.functionParameter = functionParameter;
     this._worldPosition = position;
+    this.text = text;
     this.time = 0;
     this.maxDelta = 9007199254740991; //Highest number in Javascript
     this.reset = false;
@@ -21,12 +22,12 @@ class AnimationSGNode extends TransformationSGNode{
     if(distance < this.range) {
       this.checkIfTimeIsSet();
       this.time += context.deltaTime;
+      console.log(this.text);
+      camera.addDisplayText(this.text);
       if(this.functionParameter.waterWave) {
         this.functionParameter.waterWave.timeInMilliseconds = this.time;
       } else if(this.functionParameter.treeRotate){
-
-          this.matrix = this.creatBillboardMatrix(context.viewMatrix);
-
+        this.matrix = this.creatBillboardMatrix(context.viewMatrix);
       }else if(this.time < this.maxDelta){
         this.matrix = glm.transform(this.addTimeToParameter(this.functionParameter));
         this.latestMatrix = this.matrix;

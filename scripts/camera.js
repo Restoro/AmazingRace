@@ -11,19 +11,44 @@ class Camera {
     this.rotateSens = 0.25;
     this.moveSens = 0.25;
 
+    this.displayQueue = [];
     this.positionLookQueue = [];
     this.currentMoveVec = vec3.create();
     this.currentLookMoveVec = vec3.create();
     //Used for regulating camera path movement speed
     this.movePathSens = 0.000215;
-    this.nextLookAndPos = new PositionLookAt(this.position, this.lookAt);
+    this.nextLookAndPos = new PositionLookAt(this.position, this.lookAt, "");
     //This variable is used for switchting between path and freecam
     this.enable = enableCam;
     this.computeViewMatrix();
   }
 
-  addNextPosition(position, lookat) {
-    this.positionLookQueue.push(new PositionLookAt(position, lookat));
+  clearDisplayText() {
+    this.displayQueue = [];
+  }
+
+  addDisplayText(text) {
+    if(this.displayQueue.indexOf(text) == -1) {
+      this.displayQueue.push(text);
+    }
+  }
+
+  showDisplayText() {
+    if(this.enable) {
+      var displayString = "";
+      for (var i = 0; i < this.displayQueue.length; i++) {
+        if(i == this.displayQueue.length-1) {
+          displayString += this.displayQueue[i];
+        } else {
+          displayString += this.displayQueue[i] + ", ";
+        }
+      }
+      displayText(displayString);
+    }
+  }
+
+  addNextPosition(position, lookat, displayText) {
+    this.positionLookQueue.push(new PositionLookAt(position, lookat, displayText));
   }
 
   getNextPosition() {
@@ -35,11 +60,17 @@ class Camera {
     if(this.nextLookAndPos != undefined) {
       this.currentMoveVec = vec3.subtract(vec3.create(), this.nextLookAndPos.position, this.position);
       this.currentLookMoveVec = this.nextLookAndPos.lookAt;
+      if(this.nextLookAndPos.text) {
+        displayText(this.nextLookAndPos.text);
+      } else {
+        displayText("");
+      }
     } else {
       //No more Position to move to
       this.currentLookMoveVec = this.lookAt;
       //Enable Freecam
       this.enable = true;
+      displayText("");
     }
   }
 
@@ -99,8 +130,9 @@ class Camera {
   }
 }
 class PositionLookAt {
-  constructor(position, lookAt) {
+  constructor(position, lookAt, displayText) {
     this.position = position;
     this.lookAt = lookAt;
+    this.text = displayText;
   }
 }
