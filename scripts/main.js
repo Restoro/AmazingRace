@@ -29,8 +29,8 @@ function init(resources) {
   initCamera();
 
   root = createSceneGraph(gl, resources);
-
   initInteraction(gl.canvas);
+
 }
 
 //Sets skyBox texture
@@ -283,13 +283,13 @@ function createSceneGraph(gl, resources) {
 
   //floor
   {
-  let floorTexture = createImage2DTexture(resources.floortexture);
-  let floor = new MaterialSGNode(new TextureSGNode(floorTexture,0,new RenderSGNode(makeRect(25, 25))));
-  setMaterialParameter(floor,[0,0,0,0] ,[0,0,0,0] , [0.0, 0.0, 0.0, 1], [0,0,0,0], 50.0);
-  root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 2}), [
-    floor
-  ]));
-}
+    let floorTexture = createImage2DTexture(resources.floortexture);
+    let floor = new MaterialSGNode(new TextureSGNode(floorTexture,0,new RenderSGNode(makeRect(25, 25))));
+    setMaterialParameter(floor,[0,0,0,0] ,[0,0,0,0] , [0.0, 0.0, 0.0, 1], [0,0,0,0], 50.0);
+    root.append(new TransformationSGNode(glm.transform({ translate: [0,-1.5,0], rotateX: -90, scale: 2}), [
+      floor
+    ]));
+  }
 
 //dragon
   {
@@ -549,17 +549,17 @@ function createSceneGraph(gl, resources) {
 
   //fir
   {
-  let firTexture = createImage2DTexture(resources.firtexture);
-    let fir = new MaterialSGNode(new TextureSGNode(firTexture,0,new RenderSGNode(makeRect(1,1))));
-  setMaterialParameter(fir,[0,0,0,0] , [0,0,0,0],[0.0, 0.0, 0.0, 0],[0,0,0,0],50.0 );
+    let firTexture = createImage2DTexture(resources.firtexture);
+      let fir = new MaterialSGNode(new TextureSGNode(firTexture,0,new RenderSGNode(makeRect(1,1))));
+    setMaterialParameter(fir,[0,0,0,0] , [0,0,0,0],[0.0, 0.0, 0.0, 0],[0,0,0,0],50.0 );
 
-  let firAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, { treeRotate:fir});
-  firAnimation.append(fir);
+    let firAnimation = new AnimationSGNode(mat4.create(), [0,0,0], camera, 15000, { treeRotate:fir});
+    firAnimation.append(fir);
 
-  root.append(new TransformationSGNode(glm.transform({ translate: [35,4.5,30], scale: 6}), [ firAnimation]));
-  root.append(new TransformationSGNode(glm.transform({ translate: [40,4.5,-25], scale: 6}), [ firAnimation]));
-  root.append(new TransformationSGNode(glm.transform({ translate: [10,4.5,-25], scale: 6}), [ firAnimation]));
-  root.append(new TransformationSGNode(glm.transform({ translate: [15,4.5,-15], scale: 6}), [ firAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [35,4.5,30], scale: 6}), [ firAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [40,4.5,-25], scale: 6}), [ firAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [10,4.5,-25], scale: 6}), [ firAnimation]));
+    root.append(new TransformationSGNode(glm.transform({ translate: [15,4.5,-15], scale: 6}), [ firAnimation]));
   }
 
   return root;
@@ -681,6 +681,7 @@ function initInteraction(canvas) {
       break;
     }
   });
+
 }
 
 /**

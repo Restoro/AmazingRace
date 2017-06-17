@@ -17,7 +17,6 @@ class AnimationSGNode extends TransformationSGNode{
   render(context) {
     this.computeCurrentPosition(context);
     let distance = vec3.distance(this._worldPosition, this.camera.position);
-
     //console.log("Distance:" + distance + " World Position:" + this._worldPosition + " Camera Position:" + this.camera.position);
     if(distance < this.range) {
       this.checkIfTimeIsSet();
@@ -25,7 +24,9 @@ class AnimationSGNode extends TransformationSGNode{
       if(this.functionParameter.waterWave) {
         this.functionParameter.waterWave.timeInMilliseconds = this.time;
       } else if(this.functionParameter.treeRotate){
+
           this.matrix = this.creatBillboardMatrix(context.viewMatrix);
+
       }else if(this.time < this.maxDelta){
         this.matrix = glm.transform(this.addTimeToParameter(this.functionParameter));
         this.latestMatrix = this.matrix;
@@ -91,7 +92,7 @@ class AnimationSGNode extends TransformationSGNode{
   }
 
   creatBillboardMatrix(view){
-    let billboard = mat4.create();
+    let billboard = this.matrix;
     billboard[0] = view[0];
     billboard[2] = view[8];
     billboard[3] = this.position[0];
